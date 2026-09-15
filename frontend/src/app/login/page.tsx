@@ -1,5 +1,5 @@
-import PrototypeRoute from "../../PrototypeRoute";
+import AuthLayout from "@/components/layout/AuthLayout";
 
 export default function LoginPage() {
-  return <PrototypeRoute initialPage="login" />;
+  return <AuthLayout abaInicial="login" />;
 }

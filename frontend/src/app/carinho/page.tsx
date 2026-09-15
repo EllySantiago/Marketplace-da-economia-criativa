@@ -1,5 +1,10 @@
-import PrototypeRoute from "../../PrototypeRoute";
+import PublicLayout from "@/components/layout/PublicLayout";
+import CartView from "@/components/carrinho/CartView";
 
 export default function CarrinhoPage() {
-  return <PrototypeRoute initialPage="cart" />;
+  return (
+    <PublicLayout>
+      <CartView />
+    </PublicLayout>
+  );
 }

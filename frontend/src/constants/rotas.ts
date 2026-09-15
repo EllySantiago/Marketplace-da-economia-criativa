@@ -1,0 +1,15 @@
+export const ROTAS = {
+  home: "/",
+  produtos: "/produtos",
+  produto: (id: number | string) => `/produtos/${id}`,
+  artesoes: "/artesoes",
+  artesao: (id: number | string) => `/artesoes/${id}`,
+  carrinho: "/carinho",
+  checkout: "/checkout",
+  checkoutSucesso: (codigo?: string) => (codigo ? `/checkout/sucesso?codigo=${codigo}` : "/checkout/sucesso"),
+  login: "/login",
+  cadastro: "/cadastro",
+  painelArtesao: "/painel-artesao",
+  admin: "/admin",
+  pedidos: "/pedidos",
+} as const;

@@ -1,12 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import type { Produto } from "../../types/produto";
+import { useCarrinho } from "@/hooks/useCarrinho";
+import CartItem from "./CartItem";
+import EmptyState from "@/components/feedback/EmptyState";
+import { formatCurrency } from "@/utils/formatCurrency";
+import { ROTAS } from "@/constants/rotas";
 
-export default function CartView({ produtos }: { produtos: Produto[] }) {
-  const [itens, setItens] = useState(() => produtos.slice(0, 2).map((produto, index) => ({ produto, quantidade: index + 1 })));
-  const subtotal = itens.reduce((total, item) => total + item.produto.preco * item.quantidade, 0);
-  const frete = subtotal >= 400 || subtotal === 0 ? 0 : 35.9;
-  return <main className="mx-auto max-w-[1200px] px-6 py-12 md:px-12"><Link href="/produtos" className="text-sm text-[#888] hover:text-[#C1522A]">← Continuar comprando</Link><p className="section-label mt-10">Meu carrinho</p><h1 className="mt-2 font-display text-4xl">{itens.length ? "Suas escolhas" : "Seu carrinho está vazio"}</h1>{itens.length ? <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]"><div className="space-y-4">{itens.map((item) => <article key={item.produto.id} className="flex gap-5 border border-[#E8E0D5] bg-white p-5"><img src={item.produto.imagem} alt={item.produto.nome} className="h-28 w-28 object-cover" /><div className="min-w-0 flex-1"><span className="technique-badge">{item.produto.tecnica}</span><h2 className="mt-2 font-display text-xl">{item.produto.nome}</h2><p className="mt-1 text-sm text-[#888]">{item.produto.artesao}</p><p className="mt-3 font-semibold text-[#C1522A]">{item.produto.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p></div><div className="flex flex-col items-end justify-between"><button type="button" onClick={() => setItens((atual) => atual.filter((atualItem) => atualItem.produto.id !== item.produto.id))} className="text-sm text-[#888] hover:text-[#C1522A]">Remover</button><div className="flex items-center border border-[#E8E0D5]"><button type="button" onClick={() => setItens((atual) => atual.map((atualItem) => atualItem.produto.id === item.produto.id ? { ...atualItem, quantidade: Math.max(1, atualItem.quantidade - 1) } : atualItem))} className="h-8 w-8 bg-[#F5F0EB]">-</button><span className="w-8 text-center text-sm">{item.quantidade}</span><button type="button" onClick={() => setItens((atual) => atual.map((atualItem) => atualItem.produto.id === item.produto.id ? { ...atualItem, quantidade: atualItem.quantidade + 1 } : atualItem))} className="h-8 w-8 bg-[#F5F0EB]">+</button></div></div></article>)}</div><aside className="h-fit border border-[#E8E0D5] bg-white p-6 lg:sticky lg:top-24"><h2 className="font-display text-2xl">Resumo do pedido</h2><div className="mt-6 space-y-3 border-b border-[#E8E0D5] pb-5 text-sm text-[#555]"><div className="flex justify-between"><span>Subtotal</span><span>{subtotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span></div><div className="flex justify-between"><span>Frete</span><span>{frete ? frete.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "Grátis"}</span></div></div><div className="flex justify-between py-5 font-semibold"><span>Total</span><span className="text-xl text-[#C1522A]">{(subtotal + frete).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span></div><Link href="/pedidos" className="btn-primary w-full justify-center">Finalizar pedido →</Link></aside></div> : <div className="py-20 text-center"><p className="font-display text-2xl">Nenhum item no carrinho ainda.</p><Link href="/produtos" className="btn-primary mt-6">Explorar catálogo</Link></div>}</main>;
+export default function CartView() {
+  const { itens, subtotal, frete, total, removerItem, alterarQuantidade } = useCarrinho();
+
+  return (
+    <main className="mx-auto max-w-[1200px] px-6 py-12 md:px-12">
+      <Link href={ROTAS.produtos} className="text-sm text-[#888] hover:text-[#C1522A]">
+        ← Continuar comprando
+      </Link>
+      <p className="section-label mt-10">Meu carrinho</p>
+      <h1 className="mt-2 font-display text-4xl">{itens.length ? "Suas escolhas" : "Seu carrinho está vazio"}</h1>
+
+      {itens.length === 0 ? (
+        <div className="mt-10">
+          <EmptyState titulo="Nenhum item no carrinho ainda" icone="🛒" acaoHref={ROTAS.produtos} acaoLabel="Explorar catálogo" />
+        </div>
+      ) : (
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
+          <div className="space-y-4">
+            {itens.map((item) => (
+              <CartItem key={item.produto.id} item={item} onRemover={removerItem} onAlterarQuantidade={alterarQuantidade} />
+            ))}
+          </div>
+          <aside className="h-fit border border-[#E8E0D5] bg-white p-6 lg:sticky lg:top-24">
+            <h2 className="font-display text-2xl">Resumo do pedido</h2>
+            <div className="mt-6 space-y-3 border-b border-[#E8E0D5] pb-5 text-sm text-[#555]">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>{formatCurrency(subtotal)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Frete</span>
+                <span className={frete ? undefined : "font-semibold text-[#2D6A4F]"}>{frete ? formatCurrency(frete) : "Grátis"}</span>
+              </div>
+              {frete > 0 && <p className="text-xs text-[#aaa]">Frete grátis acima de R$ 400,00</p>}
+            </div>
+            <div className="flex justify-between py-5 font-semibold">
+              <span>Total</span>
+              <span className="text-xl text-[#C1522A]">{formatCurrency(total)}</span>
+            </div>
+            <Link href={ROTAS.checkout} className="btn-primary w-full justify-center">
+              Finalizar pedido →
+            </Link>
+            <div className="mt-5 space-y-2 text-xs text-[#888]">
+              <p>🔒 Pagamento seguro</p>
+              <p>🎁 Embalagem artesanal</p>
+              <p>📦 Entrega rastreada</p>
+            </div>
+          </aside>
+        </div>
+      )}
+    </main>
+  );
 }

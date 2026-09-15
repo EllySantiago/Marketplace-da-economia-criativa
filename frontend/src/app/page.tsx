@@ -1,5 +1,10 @@
-import PrototypeRoute from "../PrototypeRoute";
+import PublicLayout from "@/components/layout/PublicLayout";
+import HomeView from "@/components/produto/HomeView";
 
 export default function Page() {
-  return <PrototypeRoute initialPage="home" />;
+  return (
+    <PublicLayout>
+      <HomeView />
+    </PublicLayout>
+  );
 }
