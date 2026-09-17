@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { DadosNovoPedido, Pedido } from "@/types/pedido";
-import { pedidosService } from "@/services/api/pedidos.service";
+import type { DadosNovoPedido, Pedido, StatusPedido } from "@/types/pedido";
+import { obterProximosStatus, pedidosService } from "@/services/api/pedidos.service";
 
 interface EstadoLista {
   pedidos: Pedido[];
@@ -15,6 +15,8 @@ type Origem = { tipo: "cliente"; email: string } | { tipo: "artesao"; artesaoId:
 /** Lista pedidos por cliente, por artesão ou todos (admin) — mesmo hook, filtro por origem. */
 export function usePedidos(origem: Origem) {
   const [estado, setEstado] = useState<EstadoLista>({ pedidos: [], carregando: true, erro: null });
+  const [atualizandoStatus, setAtualizandoStatus] = useState(false);
+  const [erroAtualizacao, setErroAtualizacao] = useState<string | null>(null);
   const chave = JSON.stringify(origem);
 
   const carregar = useCallback(() => {
@@ -36,7 +38,27 @@ export function usePedidos(origem: Origem) {
     carregar();
   }, [carregar]);
 
-  return { ...estado, recarregar: carregar };
+  async function atualizarStatus(codigo: string, novoStatus: StatusPedido) {
+    const origemAtual: Origem = JSON.parse(chave);
+    if (origemAtual.tipo !== "artesao") {
+      throw new Error("Apenas artesãos podem atualizar pedidos.");
+    }
+
+    setAtualizandoStatus(true);
+    setErroAtualizacao(null);
+    try {
+      await pedidosService.atualizarStatus(codigo, origemAtual.artesaoId, novoStatus);
+      await carregar();
+    } catch (erroCapturado) {
+      const mensagem = erroCapturado instanceof Error ? erroCapturado.message : "Não foi possível atualizar o pedido.";
+      setErroAtualizacao(mensagem);
+      throw erroCapturado;
+    } finally {
+      setAtualizandoStatus(false);
+    }
+  }
+
+  return { ...estado, recarregar: carregar, atualizarStatus, atualizandoStatus, erroAtualizacao, obterProximosStatus };
 }
 
 /** Busca um pedido específico pelo código (usado na tela de confirmação do checkout). */

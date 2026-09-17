@@ -1,10 +1,23 @@
-import type { DadosNovoPedido, Pedido } from "@/types/pedido";
+import type { DadosNovoPedido, Pedido, StatusPedido } from "@/types/pedido";
 import { pedidosMock } from "@/mocks/pedidos.mock";
 import { delay, ApiError } from "./client";
 import { produtosService } from "./produtos.service";
 
 const pedidos: Pedido[] = [...pedidosMock];
 let proximoNumero = 4822;
+
+const transicoesStatus: Record<StatusPedido, StatusPedido[]> = {
+  pendente: ["confirmado", "cancelado"],
+  confirmado: ["em_producao", "cancelado"],
+  em_producao: ["enviado", "cancelado"],
+  enviado: ["entregue"],
+  entregue: [],
+  cancelado: [],
+};
+
+export function obterProximosStatus(status: StatusPedido): StatusPedido[] {
+  return [...transicoesStatus[status]];
+}
 
 function gerarCodigo(): string {
   return `PE-${proximoNumero++}`;
@@ -35,6 +48,25 @@ export const pedidosService = {
       await delay(null, 250);
       throw new ApiError(`Pedido ${codigo} não encontrado.`);
     }
+    return delay(pedido);
+  },
+
+  async atualizarStatus(codigo: string, artesaoId: number, novoStatus: StatusPedido): Promise<Pedido> {
+    const pedido = pedidos.find((item) => item.codigo === codigo);
+    if (!pedido) {
+      throw new ApiError(`Pedido ${codigo} não encontrado.`);
+    }
+
+    const autorizado = pedido.itens.some((item) => item.produto.artesaoId === artesaoId);
+    if (!autorizado) {
+      throw new ApiError("Você não tem permissão para atualizar este pedido.");
+    }
+
+    if (!transicoesStatus[pedido.status].includes(novoStatus)) {
+      throw new ApiError(`Não é possível alterar o pedido de ${pedido.status} para ${novoStatus}.`);
+    }
+
+    pedido.status = novoStatus;
     return delay(pedido);
   },
 
