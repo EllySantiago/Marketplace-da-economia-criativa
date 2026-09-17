@@ -18,6 +18,7 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDateShort } from "@/utils/formatDate";
 import { ROTAS } from "@/constants/rotas";
 import type { Produto } from "@/types/produto";
+import type { StatusPedido } from "@/types/pedido";
 
 type Secao = "overview" | "catalog" | "add" | "orders" | "stock";
 
@@ -42,11 +43,20 @@ export default function PainelArtesaoPage() {
   const { usuario, estaAutenticado } = useAuth();
   const [secao, setSecao] = useState<Secao>("overview");
   const [produtoEmEdicao, setProdutoEmEdicao] = useState<Produto | null>(null);
+  const [statusSelecionado, setStatusSelecionado] = useState<Record<string, StatusPedido | "">>({});
   const artesaoId = usuario?.artesaoId ?? -1;
 
   const { artesao } = useArtesao(artesaoId);
   const { produtos, carregando: carregandoProdutos, erro: erroProdutos, recarregar } = useProdutos({ artesaoId });
-  const { pedidos, carregando: carregandoPedidos, erro: erroPedidos } = usePedidos({ tipo: "artesao", artesaoId });
+  const {
+    pedidos,
+    carregando: carregandoPedidos,
+    erro: erroPedidos,
+    atualizarStatus,
+    atualizandoStatus,
+    erroAtualizacao,
+    obterProximosStatus,
+  } = usePedidos({ tipo: "artesao", artesaoId });
   const { remover, removendo } = useRemoverProduto();
 
   const metricas = useMemo(() => {
@@ -72,6 +82,16 @@ export default function PainelArtesaoPage() {
     if (!window.confirm(`Remover "${produto.nome}" do catálogo?`)) return;
     const ok = await remover(produto.id);
     if (ok) recarregar();
+  }
+
+  async function salvarStatus(codigo: string) {
+    const novoStatus = statusSelecionado[codigo];
+    if (!novoStatus) return;
+    try {
+      await atualizarStatus(codigo, novoStatus);
+      setStatusSelecionado((atual) => ({ ...atual, [codigo]: "" }));
+    } catch {
+    }
   }
 
   if (!estaAutenticado || !usuario || usuario.perfil !== "artesao") {
@@ -187,6 +207,7 @@ export default function PainelArtesaoPage() {
             <h1 className="font-display mb-6 text-3xl">Pedidos</h1>
             {carregandoPedidos && <LoadingState variante="lista" itens={4} />}
             {!carregandoPedidos && erroPedidos && <ErrorState mensagem={erroPedidos} />}
+            {!carregandoPedidos && erroAtualizacao && <ErrorState mensagem={erroAtualizacao} />}
             {!carregandoPedidos && !erroPedidos && pedidos.length === 0 && <EmptyState titulo="Nenhum pedido recebido ainda" />}
             {!carregandoPedidos && pedidos.length > 0 && (
               <div className="space-y-3">
@@ -198,7 +219,34 @@ export default function PainelArtesaoPage() {
                         {pedido.clienteEmail} · {formatDateShort(pedido.data)}
                       </p>
                     </div>
-                    <OrderStatus status={pedido.status} />
+                    <div className="flex items-center gap-2">
+                      <OrderStatus status={pedido.status} />
+                      {obterProximosStatus(pedido.status).length > 0 && (
+                          <select
+                            aria-label={`Próximo status do pedido ${pedido.codigo}`}
+                            value={statusSelecionado[pedido.codigo] ?? ""}
+                            disabled={atualizandoStatus}
+                            onChange={(evento) => setStatusSelecionado((atual) => ({ ...atual, [pedido.codigo]: evento.target.value as StatusPedido | "" }))}
+                            className="border border-[#E8E0D5] bg-white px-2 py-1 text-sm disabled:opacity-50"
+                          >
+                            <option value="">Atualizar status</option>
+                            {obterProximosStatus(pedido.status).map((status) => (
+                              <option key={status} value={status}>
+                                {status.replace("_", " ")}
+                              </option>
+                            ))}
+                          </select>
+                      )}
+                      {atualizandoStatus && <LoadingState variante="texto" mensagem="Salvando status..." />}
+                          <button
+                            type="button"
+                            onClick={() => void salvarStatus(pedido.codigo)}
+                            disabled={atualizandoStatus || !statusSelecionado[pedido.codigo]}
+                            className="btn-outline px-3 py-1 text-sm disabled:opacity-50"
+                          >
+                            Salvar
+                          </button>
+                    </div>
                     <span className="font-semibold text-[#C1522A]">{formatCurrency(pedido.total)}</span>
                   </Card>
                 ))}
