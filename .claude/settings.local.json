@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(tail -80 /tmp/nextdev.log)",
+      "Read(//tmp/**)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(taskkill //F //PID 1642 //T)",
+      "Bash(curl -s -o /dev/null -w \"porta 3000 agora: %{http_code}\\\\n\" http://localhost:3000 --max-time 2)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 2000 //T)",
+      "Bash(taskkill //F //PID 11964 //T)",
+      "Bash(curl -s -o /dev/null -w \"checkout: %{http_code}\\\\n\" http://localhost:3000/checkout --max-time 5)",
+      "Bash(git config *)",
+      "Bash(env)"
+    ]
+  }
+}
