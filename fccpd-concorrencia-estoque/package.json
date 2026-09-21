@@ -1,0 +1,13 @@
+{
+  "name": "fccpd-concorrencia-estoque",
+  "version": "1.0.0",
+  "description": "Demonstracao de controle de concorrencia no checkout/estoque + fila assincrona (entrega FCCPD U1 - projeto Origem)",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node servidor.js",
+    "demo": "node testar-concorrencia.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
