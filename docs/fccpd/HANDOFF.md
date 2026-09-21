@@ -4,7 +4,7 @@
 > sem perder contexto. Ele registra o que já foi feito, por quê, como rodar, e o que
 > falta. Na seção final há um prompt pronto para colar numa nova sessão de IA.
 >
-> Última atualização: **21/09/2026** — fim da Etapa 1.
+> Última atualização: **21/09/2026** — fim da Etapa 4. Entrega completa.
 > Branch: `feat/fccpd-concorrencia`.
 
 ---
@@ -14,9 +14,9 @@
 | Etapa | Escopo | Status |
 |---|---|---|
 | **1** | Controle de concorrência no checkout (UPDATE condicional em transação) | ✅ **concluída** |
-| **2** | Fila assíncrona (notificações + processamento de imagem) com worker em processo separado | ⬜ a fazer |
-| **3** | Scripts de teste de carga + pasta `evidencias/` | ⬜ a fazer |
-| **4** | `RELATORIO.md` em português | ⬜ a fazer |
+| **2** | Fila assíncrona (notificações + processamento de imagem) com worker em processo separado | ✅ **concluída** |
+| **3** | Scripts de teste de carga + pasta `evidencias/` | ✅ **concluída** |
+| **4** | `RELATORIO.md` em português | ✅ **concluída** |
 
 Entrega avaliada por 6 critérios de 4 pontos: (1) mecanismo de concorrência com justificativa,
 (2) estoque consistente sob compras simultâneas, (3) fila assíncrona para tarefas secundárias,
@@ -64,7 +64,9 @@ implementar. Vale citar isso na apresentação.
 
 ---
 
-## 4. O que já existe (Etapa 1)
+## 4. O que já existe
+
+### Etapa 1 — concorrência no checkout
 
 ```
 backend/
@@ -93,7 +95,10 @@ O Docker executa `01_schema.sql` e `02_seed.sql` **automaticamente** na primeira
 | `GET /produtos/:id` | Consulta um produto — usado para ler o estoque atual. |
 | `POST /pedidos` | Checkout **seguro**. Vira o ingênuo se `NAIVE_CHECKOUT=true`. |
 | `POST /pedidos-naive` | Checkout **ingênuo** sempre — para o teste comparativo. |
-| `POST /teste/reiniciar` | Apaga pedidos e recoloca o estoque. Instrumentação de laboratório, não existiria em produção. |
+| `POST /teste/reiniciar` | Apaga pedidos, fila e notificações e recoloca o estoque. Instrumentação de laboratório, não existiria em produção. |
+| `POST /produtos/:id/imagens` | [Etapa 2] Registra a imagem e **só enfileira** o processamento. Responde **202 Accepted** — o código honesto para "aceitei, ainda não terminei". |
+| `GET /fila` | [Etapa 2] Quantos jobs em cada status + o conteúdo da dead-letter. |
+| `POST /teste/fila` | [Etapa 2] Enfileira N jobs de uma vez, para o teste de carga da fila. |
 
 Corpo do pedido:
 
@@ -110,7 +115,10 @@ Respostas: **201** criado · **409** `ESTOQUE_INSUFICIENTE` ou `DEADLOCK_DETECTA
 **404** `PRODUTO_INEXISTENTE` · **400** corpo inválido · **500** `VIOLACAO_CHECK_ESTOQUE`
 (a constraint do banco barrou — esperado na versão ingênua, sinal de bug na segura).
 
-### Resultado já medido (prévia, 30 requisições simultâneas, estoque inicial 10)
+### Resultado medido na Etapa 1 (prévia, 30 requisições simultâneas)
+
+> Números preliminares, mantidos por registro. Os **números oficiais da entrega**
+> são os da Etapa 3 mais abaixo (50 requisições) e estão em `evidencias/`.
 
 | Cenário | 201 | 409 | Estoque final | Veredito |
 |---|---:|---:|---:|---|
@@ -128,6 +136,75 @@ UPDATE produto SET estoque = -1 WHERE id = 1;
 ERROR: new row for relation "produto" violates check constraint "produto_estoque_check"
 ```
 
+### Etapa 2 — fila assíncrona
+
+```
+backend/
+├── sql/03_fila.sql          estende evento_assincrono: tentativas, max_tentativas,
+│                            disponivel_em (backoff), chave_idempotencia UNIQUE,
+│                            ultimo_erro, atualizado_em + índices parciais.
+│                            Também dá chave_idempotencia à tabela notificacao.
+└── src/
+    ├── fila.js              enfileirar · reservar (FOR UPDATE SKIP LOCKED) ·
+    │                        confirmar (ack) · falhar (backoff/dead-letter) ·
+    │                        recuperarOrfaos · resumo
+    ├── tarefas.js           notificar_pedido e processar_imagem, ambas idempotentes
+    └── worker.js            processo separado (npm run worker), polling,
+                             desligamento gracioso em SIGINT/SIGTERM
+```
+
+Decisões da etapa (as três foram escolhidas pela aluna, com prós e contras na mão):
+
+| Decisão | Escolha | Motivo |
+|---|---|---|
+| Processamento de imagem | **Simulado** (SHA-256 sobre 4 MB + espera), sem `sharp` | O ponto da rubrica é o trabalho pesado sair do caminho HTTP; o algoritmo é intercambiável. Zero dependências novas e menos assunto para defender. Está declarado em comentário no código, não escondido. |
+| Falhas | **Injetadas por variável** `TAXA_FALHA` (0 a 1), desligada por padrão | Sem falha não há como *demonstrar* retry, backoff e dead-letter — e os três são critérios avaliados. |
+| Momento de enfileirar | **Dentro da transação do pedido** (*transactional outbox*) | Ou o pedido e os bilhetes existem juntos, ou nenhum existe. Não há janela para pedido confirmado sem notificação. Uma fila externa (Redis) não consegue isso. |
+
+Alterações no que já existia: `src/pedido.js` enfileira as notificações dentro da
+transação; `src/server.js` ganhou `POST /produtos/:id/imagens` (responde **202**,
+só enfileira), `GET /fila`, `POST /teste/fila` e um `/teste/reiniciar` que agora
+limpa também a fila, as notificações e as imagens.
+
+Garantias implementadas, e onde cada uma está:
+
+| Garantia | Como | Onde |
+|---|---|---|
+| Nada se perde | ack só depois do sucesso (at-least-once) | `worker.js` → `processar()` |
+| Nada duplica o efeito | `chave_idempotencia UNIQUE` + `ON CONFLICT DO NOTHING` | `fila.js`, `tarefas.js`, `sql/03_fila.sql` |
+| Falha transitória se recupera | retry com backoff exponencial (2s, 4s, 8s, 16s) | `fila.js` → `falhar()` |
+| Falha permanente não entope a fila | dead-letter (`status = 'morto'` + `ultimo_erro`) | `fila.js` → `falhar()` |
+| Worker morto não trava a fila | varredura de órfãos por tempo (*visibility timeout*) | `fila.js` → `recuperarOrfaos()` |
+| Vários workers escalam de verdade | `SELECT … FOR UPDATE SKIP LOCKED` | `fila.js` → `reservar()` |
+| Desacoplamento | API e worker só se falam pela tabela da fila | `worker.js` (cabeçalho) |
+
+### Etapa 3 — testes e evidências
+
+```
+backend/testes/
+├── teste-concorrencia.js    N compras simultâneas; conta status e mede o estoque
+├── teste-deadlock.js        carrinhos com os mesmos produtos em ordem inversa
+├── teste-fila.js            3 partes: kill -9 no worker · backoff/dead-letter ·
+│                            3 workers com SKIP LOCKED
+└── gerar-evidencias.sh      roda tudo e grava em evidencias/  (npm run evidencias)
+
+evidencias/                  saídas reais + README.md explicando cada arquivo
+                             e listando os prints de tela a tirar
+```
+
+**Resultados medidos** (50 requisições simultâneas, estoque inicial 10):
+
+| Cenário | 201 | 409 | Estoque final | Escritas perdidas | Veredito |
+|---|---:|---:|---:|---:|---|
+| `/pedidos-naive` | **50** | 0 | **1** | **41** | 🔴 vendeu 50 existindo 10 |
+| `/pedidos` | **10** | **40** | **0** | 0 | 🟢 exatamente o estoque |
+
+Deadlock: 40 compras com `[2,3]` e `[3,2]` simultâneas → **0 deadlocks**.
+
+Fila: 200 jobs com `kill -9` no worker no meio → **200 processados, 200 efeitos,
+200 distintos, 0 perdidos**. Backoff observado: 500 ms → 1 s → 2 s → `morto`.
+Três workers dividiram 60 jobs em **20 / 20 / 20**, sem nenhuma entrega dupla.
+
 ---
 
 ## 5. Como rodar, do zero, em qualquer máquina
@@ -142,7 +219,22 @@ git switch feat/fccpd-concorrencia
 cd backend
 docker compose up -d      # sobe o PostgreSQL e aplica schema + seed automaticamente
 npm install
-npm run api               # API em http://localhost:3333
+npm run api               # terminal 1 — API em http://localhost:3333
+npm run worker            # terminal 2 — worker da fila (processo separado)
+```
+
+Num banco que **já existia** antes da Etapa 2, aplique a migration da fila à mão
+(ela é idempotente, rodar duas vezes não dá erro):
+
+```bash
+docker compose exec -T postgres psql -U origem -d origem -f /docker-entrypoint-initdb.d/03_fila.sql
+```
+
+Rodar a bateria de testes e regravar a pasta `evidencias/` (com a API de pé e
+**nenhum** worker rodando — o teste sobe os dele):
+
+```bash
+npm run evidencias
 ```
 
 Verificar:
@@ -308,6 +400,65 @@ segurar qualquer coisa que Ana precise.
 > **Frase para decorar:** *deadlock exige um ciclo de espera; com ordem única de aquisição o
 > ciclo é impossível, e a espera vira uma fila reta — que sempre anda.*
 
+### Fila assíncrona: os termos que o professor vai cobrar
+
+**Fila de mensagens** = lista de tarefas para depois. A API não executa a tarefa:
+escreve um bilhete e responde. Analogia: o garçom anota o pedido e volta a
+atender; não fica parado na cozinha. A comanda no balcão é a fila.
+
+**Worker** = o processo que lê essa lista e executa. É a cozinha. Aqui é
+`npm run worker`, iniciado **separado** da API.
+
+**Por que processo separado, e não uma thread dentro do servidor?** Processo tem
+memória própria e isolada (duas casas, duas geladeiras); threads do mesmo
+processo dividem memória (duas pessoas, uma geladeira). Separado: (1) se o
+worker travar processando uma imagem enorme, a API continua vendendo; (2) dá
+para subir 3 workers e 1 API conforme o gargalo; (3) em Node isso é ainda mais
+grave, porque o JavaScript da aplicação roda numa **única thread** — cálculo
+pesado dentro do servidor congela todas as requisições, inclusive as que nada
+têm a ver com a tarefa.
+
+**Ack** (*acknowledge*) = a confirmação "terminei com sucesso". Só depois dela o
+job sai da fila. Se o worker morrer antes, o job continua lá para outro pegar.
+Dar o ack *antes* de executar seria perder a tarefa numa queda.
+
+**At-least-once** ("pelo menos uma vez") = a garantia que isso produz: nenhum job
+se perde, mas um job **pode** rodar duas vezes (trabalhou, caiu antes do ack,
+outro pegou). *Exactly-once* entre dois sistemas é praticamente impossível de
+garantir; a indústria escolhe at-least-once e resolve a duplicata do outro lado.
+
+**Idempotência** = repetir a operação não muda o resultado. Apertar o botão do
+elevador dez vezes é idempotente. "Enviar e-mail" não é — por isso
+at-least-once **exige** idempotência. Resolvido aqui com `chave_idempotencia`
+UNIQUE + `ON CONFLICT DO NOTHING`: quem garante é o **banco**, não um `if` da
+aplicação (um `if` seria consultar-e-depois-inserir, o mesmo check-then-act que
+causou o bug de estoque).
+
+**Backoff exponencial** = ao falhar, esperar antes de tentar de novo, dobrando a
+espera (2s, 4s, 8s, 16s). Se o serviço de e-mail caiu, martelá-lo atrapalha a
+recuperação dele e ainda queima todas as tentativas em 2 segundos.
+
+**Dead-letter** ("carta morta") = depois de N tentativas o job para de tentar,
+vira `morto` e fica guardado com o motivo, para alguém investigar. Sem isso, um
+job impossível tentaria para sempre.
+
+**`SELECT … FOR UPDATE SKIP LOCKED`** = o que faz uma tabela virar fila.
+`FOR UPDATE` trava as linhas que o worker pegou; `SKIP LOCKED` manda **pular** as
+linhas já travadas por outro em vez de esperar por elas. Sem `SKIP LOCKED`, o
+worker 2 ficaria parado atrás do worker 1 e dois workers renderiam o mesmo que
+um. Com ele, os workers dividem a fila — foi o 20/20/20 da evidência.
+
+**Job órfão e *visibility timeout*** = job preso em `processando` porque o worker
+morreu de repente. Passado um tempo sem notícia, ele volta para `pendente`.
+**Ponto frágil, e é honesto admitir:** se esse tempo for menor que a tarefa mais
+lenta, a fila reentrega um job que ainda está rodando e ele executa em dobro —
+quem segura o estrago é a idempotência, não o timeout.
+
+**Transactional outbox** = enfileirar dentro da MESMA transação do pedido. Ou os
+dois existem, ou nenhum existe: não há janela para pedido confirmado sem
+notificação. Uma fila externa (Redis, RabbitMQ) não consegue isso, porque está
+fora da transação do banco.
+
 ### Dois detalhes do código que também são de concorrência
 
 - **`pool.connect()` e não `pool.query()`** (`db.js`): a transação exige **uma conexão
@@ -326,64 +477,17 @@ segurar qualquer coisa que Ana precise.
 
 ## 7. O que falta
 
-### Etapa 2 — Fila assíncrona
+As quatro etapas estão concluídas. O que resta **depende da aluna**, não de código:
 
-Tirar do caminho da resposta HTTP: **(a)** notificação de pedido confirmado (comprador e
-artesão) e **(b)** processamento de imagem de produto (resize/thumbnail).
-
-Requisitos:
-
-- O endpoint HTTP **só enfileira** e responde; não executa a tarefa.
-- O worker roda em **processo separado**, com comando próprio de inicialização
-  (`npm run worker`). **Não** usar thread dentro do servidor web.
-- Retry com **backoff exponencial** (3 a 5 tentativas).
-- **Ack** só após sucesso.
-- **Idempotência** por chave única (ex.: `pedido_id + tipo de job`), para o retry não disparar
-  duas notificações.
-- Jobs que falharem em todas as tentativas vão para **dead-letter** / status `morto`,
-  inspecionável.
-- **Persistência**: o job sobrevive à queda do worker.
-
-Implementação combinada: estender a tabela `evento_assincrono` (que já existe) com
-`tentativas`, `max_tentativas`, `disponivel_em`, `chave_idempotencia UNIQUE`, `ultimo_erro`; o
-worker consome com `SELECT ... FOR UPDATE SKIP LOCKED`. O enum `status_evento` já foi estendido
-em `01_schema.sql` com `processando` e `morto`. O novo SQL vai em `sql/03_fila.sql`.
-
-Conceitos a explicar antes de codar: fila de mensagens, worker, diferença thread × processo,
-ack, *at-least-once*, por que *at-least-once* exige idempotência, backoff exponencial, e o que
-`SKIP LOCKED` faz (por que dois workers não pegam o mesmo job).
-
-### Etapa 3 — Testes e evidências
-
-Script de concorrência que: coloque um produto com **estoque = 10**, dispare **50 requisições
-simultâneas**, conte as respostas por status code e imprima o estoque final. Rodar nos dois
-cenários:
-
-- **Ingênua:** esperado > 10 aprovados e/ou estoque negativo.
-- **Corrigida:** esperado exatamente **10** aprovados (201), **40** rejeitados (409), estoque
-  final **0**, nunca negativo.
-
-Teste da fila: enfileirar **200 jobs**, derrubar o worker no meio, subir de novo, comprovar que
-os 200 foram processados **exatamente uma vez**.
-
-Salvar todas as saídas em `evidencias/` e listar quais prints de tela tirar.
-
-### Etapa 4 — `RELATORIO.md` (em português)
-
-1. Pontos concorrentes identificados no Origem e por que são concorrentes.
-2. Técnica escolhida, justificativa, e alternativas descartadas com o motivo da recusa.
-3. Desenho da fila (diagrama **Mermaid**: API → fila → worker) e as garantias de entrega.
-4. Metodologia do teste (o que foi medido e como) + tabela comparativa antes/depois com os
-   números reais.
-5. Como rodar tudo (subir banco, subir API, subir worker, rodar teste).
-6. Seção **"Uso de ferramentas de IA"** — a ser preenchida com o que realmente aconteceu, a
-   partir de perguntas feitas à aluna. **Não inventar.** Ver `docs/uso-de-ia.md`, que já
-   registra Figma Make e Claude Code na Avaliação 1.
-
-Nível: defensável numa apresentação oral. Sinalizar trechos que a aluna provavelmente não
-saberia explicar se o professor perguntar.
-
----
+1. **Preencher o bloco destacado na seção 6.3 do [`RELATORIO.md`](../../RELATORIO.md)** —
+   outras IAs usadas, em que medida o código foi revisado/executado por ela, e material do
+   professor que tenha guiado a escolha. A IA deixou isso em aberto de propósito: preencher
+   sem perguntar seria inventar.
+2. **Tirar os prints de tela** listados em [`evidencias/README.md`](../../evidencias/README.md).
+3. **Estudar a seção 6 deste arquivo** para a defesa oral. Os dois pontos mais prováveis de
+   pergunta: como o `SKIP LOCKED` divide a fila, e por que o *visibility timeout* é o ponto
+   frágil do desenho (a resposta certa é "quem segura o estrago é a idempotência").
+4. **Abrir o PR** de `feat/fccpd-concorrencia` para `main`, se a entrega for por pull request.
 
 ## 8. Prompt para retomar com a IA
 
@@ -393,29 +497,28 @@ Cole isto numa sessão nova do Claude Code, na raiz do repositório:
 Estou retomando a entrega da Parte 1 de FCCPD (Fundamentos de Computação Concorrente,
 Paralela e Distribuída) no projeto Origem, um marketplace de artesanato de Pernambuco.
 
-Leia docs/fccpd/HANDOFF.md primeiro — ele tem todo o contexto: o que já foi feito na
-Etapa 1, as decisões de stack e o que falta nas Etapas 2, 3 e 4.
+Leia docs/fccpd/HANDOFF.md primeiro — ele tem todo o contexto. As quatro etapas estão
+concluídas: concorrência no checkout, fila assíncrona com worker em processo separado,
+scripts de teste com a pasta evidencias/ gerada, e o RELATORIO.md na raiz. O que falta
+está na seção 7 do handoff.
 
 COMO ME TRATAR (importante): perdi várias aulas dessa disciplina e não domino os
 conceitos. Termos como thread, processo, lock, transação, race condition, deadlock,
 worker, fila, ack, idempotência e throughput são vagos para mim. Então:
-1. Antes de escrever cada bloco de código, explique em português simples o que ele vai
-   fazer e por quê.
-2. A primeira vez que usar qualquer termo técnico, explique o que significa em uma ou
+1. A primeira vez que usar qualquer termo técnico, explique o que significa em uma ou
    duas frases, com analogia se ajudar. Não presuma que eu sei.
-3. Depois de escrever o código, me explique linha por linha as partes que importam
-   para a concorrência.
-4. Trabalhe em etapas. Ao fim de cada etapa, pare, me diga o que fez, o que eu devo
+2. Trabalhe em etapas. Ao fim de cada etapa, pare, me diga o que fez, o que eu devo
    rodar para testar, e espere minha confirmação antes de seguir.
-5. Se eu precisar tomar uma decisão (biblioteca, ajuste no banco), me pergunte em vez
-   de decidir sozinho, explicando prós e contras.
-6. Não me entregue código que eu não entenda. Prefiro a solução mais simples que
-   atenda ao requisito.
-7. Me avise quando tiver algum trecho que eu provavelmente não saberia explicar se o
+3. Se eu precisar tomar uma decisão, me pergunte em vez de decidir sozinho,
+   explicando prós e contras.
+4. Não me entregue código que eu não entenda.
+5. Me avise quando tiver algum trecho que eu provavelmente não saberia explicar se o
    professor perguntar.
 
-Confirme que subiu o ambiente (docker compose up -d, npm install, npm run api dentro de
-backend/) e comece a ETAPA 2 — fila assíncrona.
+Suba o ambiente (docker compose up -d, npm install, npm run api e npm run worker dentro
+de backend/), confirme que `npm run evidencias` ainda passa, e então me ajude com o que
+falta. Para a seção de uso de IA do relatório, me PERGUNTE o que realmente aconteceu —
+não invente.
 ```
 
 ---
