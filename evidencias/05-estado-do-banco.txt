@@ -1,0 +1,40 @@
+Consultas feitas direto no PostgreSQL em 2026-09-21T15:55:15-03:00
+
+ id |            nome            | estoque 
+----+----------------------------+---------
+  1 | Boneca de Barro Pequena    |      10
+  2 | Jarro de Barro Esmaltado   |      10
+  3 | Caminho de Mesa Renascença |      10
+(3 rows)
+
+   status   | count 
+------------+-------
+ processado |    60
+(1 row)
+
+ notificacoes | distintas 
+--------------+-----------
+           60 |        60
+(1 row)
+
+                                            Table "public.evento_assincrono"
+       Column       |            Type             | Collation | Nullable |                    Default                    
+--------------------+-----------------------------+-----------+----------+-----------------------------------------------
+ id                 | bigint                      |           | not null | nextval('evento_assincrono_id_seq'::regclass)
+ tipo               | character varying(50)       |           | not null | 
+ payload            | jsonb                       |           | not null | 
+ status             | status_evento               |           | not null | 'pendente'::status_evento
+ criado_em          | timestamp without time zone |           | not null | now()
+ processado_em      | timestamp without time zone |           |          | 
+ tentativas         | integer                     |           | not null | 0
+ max_tentativas     | integer                     |           | not null | 4
+ disponivel_em      | timestamp without time zone |           | not null | now()
+ chave_idempotencia | character varying(160)      |           |          | 
+ ultimo_erro        | text                        |           |          | 
+ atualizado_em      | timestamp without time zone |           | not null | now()
+Indexes:
+    "evento_assincrono_pkey" PRIMARY KEY, btree (id)
+    "idx_evento_em_processamento" btree (atualizado_em) WHERE status = 'processando'::status_evento
+    "idx_evento_prontos" btree (disponivel_em, id) WHERE status = ANY (ARRAY['pendente'::status_evento, 'falha'::status_evento])
+    "uq_evento_chave_idempotencia" UNIQUE, btree (chave_idempotencia) WHERE chave_idempotencia IS NOT NULL
+

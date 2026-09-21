@@ -1,0 +1,26 @@
+══════════════════════════════════════════════════════════════════════════════
+TESTE DE CONCORRÊNCIA NO CHECKOUT — rota /pedidos
+versão: SEGURA (UPDATE condicional)
+50 compras simultâneas de 1 unidade · produto 1 · estoque inicial 10
+quando: 2026-09-21T18:54:25.101Z
+══════════════════════════════════════════════════════════════════════════════
+──────────────────────────────────────────────────────────────────────────────
+RESPOSTAS
+  HTTP 201 (criado): 10
+  HTTP 409 (conflito (rejeitado)): 40
+  códigos de erro:
+    ESTOQUE_INSUFICIENTE: 40
+──────────────────────────────────────────────────────────────────────────────
+ESTOQUE
+  inicial ................................ 10
+  final .................................. 0
+  compras aprovadas (HTTP 201) ........... 10
+  baixa efetivamente registrada .......... 10
+  ESCRITAS PERDIDAS (lost update) ........ 0
+  unidades vendidas além do estoque ...... 0
+  duração da rajada ...................... 380 ms
+──────────────────────────────────────────────────────────────────────────────
+✅ VEREDITO: CONSISTENTE.
+   Foram vendidas exatamente as 10 unidades que existiam,
+   as outras 40 compras receberam 409, e o estoque zerou sem ficar negativo.
+══════════════════════════════════════════════════════════════════════════════
