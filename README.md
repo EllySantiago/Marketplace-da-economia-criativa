@@ -115,4 +115,4 @@ a usar sessão real (JWT/cookies) dentro de `authStore`/`useAuth`, e a Fake API 
 
 ## Status de publicação
 
-_(A preencher pela equipe: URL do deploy, link do vídeo demonstrativo.)_
+URL do DEPLOY: https://marketplace-da-economia-criativa.vercel.app/cadastro
