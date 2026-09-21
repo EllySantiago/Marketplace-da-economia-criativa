@@ -1,0 +1,38 @@
+# Banco de dados do Origem — usado pela entrega de FCCPD (concorrência + fila).
+#
+# Sobe um PostgreSQL 16 isolado num container, para não ser preciso instalar
+# PostgreSQL na máquina. Na PRIMEIRA vez que o container sobe com o volume
+# vazio, o Postgres executa automaticamente, em ordem alfabética, todos os
+# arquivos .sql montados em /docker-entrypoint-initdb.d — é assim que
+# sql/01_schema.sql e sql/02_seed.sql são aplicados sem nenhum comando extra.
+#
+#   subir:    docker compose up -d
+#   derrubar: docker compose down
+#   zerar:    docker compose down -v   (apaga o volume; o schema roda de novo)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: origem-postgres
+    environment:
+      POSTGRES_USER: origem
+      POSTGRES_PASSWORD: origem
+      POSTGRES_DB: origem
+    ports:
+      # 5434 na máquina -> 5432 dentro do container.
+      # Não usamos a porta padrão 5432 (nem a 5433) para não colidir com outros
+      # PostgreSQL já rodando nesta máquina.
+      - "5434:5432"
+    volumes:
+      - origem-pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # Permite que outros comandos esperem o banco estar REALMENTE pronto
+      # para aceitar conexões (subir o container != banco pronto).
+      test: ["CMD-SHELL", "pg_isready -U origem -d origem"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  origem-pgdata:
