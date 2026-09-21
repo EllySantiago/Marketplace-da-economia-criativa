@@ -7,6 +7,8 @@
 // visível, sem ruído de código repetido no meio.
 // ============================================================================
 
+import { enfileirar } from "./fila.js";
+
 /** Não havia estoque suficiente no momento da compra. Vira HTTP 409 Conflict. */
 export class EstoqueInsuficiente extends Error {
   constructor(produtoId) {
@@ -108,6 +110,50 @@ export async function gravarPedido(cliente, { compradorId, enderecoEntrega, meto
      VALUES ($1, $2, 'aprovado', $3)`,
     [pedidoId, metodoPagamento ?? "simulado", total],
   );
+
+  // --------------------------------------------------------------------------
+  // [FCCPD — Etapa 2] ENFILEIRAMENTO DAS NOTIFICAÇÕES
+  //
+  // Aqui o checkout NÃO notifica ninguém: ele só deposita bilhetes na fila e
+  // segue para a resposta HTTP. Enviar e-mail/push é conversa com um serviço de
+  // fora, que pode demorar segundos ou estar fora do ar — e o comprador não tem
+  // nada a ver com isso. Pior: uma falha no envio, feita aqui dentro, derrubaria
+  // a transação e cancelaria uma venda perfeitamente boa.
+  //
+  // Repare que passamos `cliente`, e não `pool`: o INSERT na fila entra na MESMA
+  // transação do pedido (padrão TRANSACTIONAL OUTBOX). Consequência: ou o pedido
+  // e os bilhetes existem juntos, ou nenhum dos dois existe. Não há janela para
+  // um pedido confirmado sem notificação, nem notificação de pedido que sumiu.
+  //
+  // A chave de idempotência descreve o EFEITO ("o comprador do pedido 42 foi
+  // avisado"), então nem um retentativa de requisição nem um retry do worker
+  // conseguem gerar dois avisos.
+  // --------------------------------------------------------------------------
+  await enfileirar(cliente, {
+    tipo: "notificar_pedido",
+    chave: `notificar-comprador:${pedidoId}`,
+    payload: {
+      pedidoId,
+      usuarioId: compradorId,
+      papel: "comprador",
+      mensagem: `Seu pedido #${pedidoId} foi confirmado. Total: R$ ${total.toFixed(2)}.`,
+    },
+  });
+
+  // Uma notificação por artesã envolvida no pedido. `Set` remove repetições:
+  // dois produtos da mesma artesã geram UM aviso, não dois.
+  for (const artesaoId of new Set(itensConfirmados.map((item) => item.artesaoId))) {
+    await enfileirar(cliente, {
+      tipo: "notificar_pedido",
+      chave: `notificar-artesao:${pedidoId}:${artesaoId}`,
+      payload: {
+        pedidoId,
+        usuarioId: artesaoId,
+        papel: "artesao",
+        mensagem: `Você recebeu uma nova venda no pedido #${pedidoId}.`,
+      },
+    });
+  }
 
   return {
     pedidoId,

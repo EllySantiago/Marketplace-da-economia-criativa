@@ -5,7 +5,12 @@
   "description": "API do Origem — entrega de Fundamentos de Computação Concorrente, Paralela e Distribuída (Unidade 1: concorrência no checkout + fila assíncrona).",
   "type": "module",
   "scripts": {
-    "api": "node src/server.js"
+    "api": "node src/server.js",
+    "worker": "node src/worker.js",
+    "teste:concorrencia": "node testes/teste-concorrencia.js",
+    "teste:deadlock": "node testes/teste-deadlock.js",
+    "teste:fila": "node testes/teste-fila.js",
+    "evidencias": "bash testes/gerar-evidencias.sh"
   },
   "dependencies": {
     "express": "^5.1.0",
