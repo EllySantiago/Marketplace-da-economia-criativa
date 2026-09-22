@@ -620,8 +620,8 @@ FCCPD.
 - **Implementação** do backend em Node + Express + `pg`: schema executável, checkout seguro,
   checkout ingênuo, fila, worker, tarefas e rotas.
 - **Scripts de teste** e geração da pasta `evidencias/`.
-- **Redação** deste relatório, do `docs/fccpd/HANDOFF.md` e dos comentários explicativos no
-  código.
+- **Redação** deste relatório, dos comentários explicativos no código e da documentação
+  interna de trabalho da equipe.
 - **Material de estudo** para a defesa oral: as explicações de race condition, lock de linha,
   deadlock, ack, idempotência e `SKIP LOCKED` foram produzidas pela IA a pedido da aluna,
   que informou não ter acompanhado parte das aulas da disciplina.
