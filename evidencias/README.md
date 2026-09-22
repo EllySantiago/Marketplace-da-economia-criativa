@@ -63,31 +63,6 @@ foram sobrescritas por outras que liam o valor antigo. Não é só "vendeu demai
 
 ---
 
-## Prints de tela sugeridos para a apresentação
-
-Os arquivos `.txt` já bastam como registro; os prints servem para a defesa oral,
-onde ver o sistema em movimento vale mais que ler um relatório.
-
-1. **Dois terminais lado a lado** — `npm run api` à esquerda, `npm run worker` à
-   direita — no instante em que uma compra é feita: a API responde na hora e o
-   worker imprime os `✅ job … ok` logo depois. É a imagem do desacoplamento.
-2. **O comparativo ingênuo × seguro**, os dois veredictos (🔴 e ✅) na mesma tela.
-3. **O log do backoff**, com as tentativas 1/4, 2/4, 3/4 e o `☠️ MORTO`,
-   mostrando os intervalos crescentes nos horários da esquerda.
-4. **O `kill -9`** — o momento em que o worker A morre e o worker B anuncia
-   `♻️ N job(s) órfão(s) recuperado(s)`.
-5. **Os três workers dividindo a fila**, com os PIDs diferentes e a contagem
-   20/20/20.
-6. **`GET /fila`** no navegador ou no `curl`, mostrando a dead-letter com o
-   `ultimoErro` preenchido.
-7. **`psql`** com `SELECT id, nome, estoque FROM produto` depois da rajada, para
-   provar que o número veio do banco e não de um `console.log` amigável.
-8. **A constraint funcionando**, na mão:
-   `UPDATE produto SET estoque = -1 WHERE id = 1;` →
-   `ERROR: new row for relation "produto" violates check constraint "produto_estoque_check"`.
-
----
-
 ## Onde está cada coisa no código
 
 | Assunto | Arquivo |

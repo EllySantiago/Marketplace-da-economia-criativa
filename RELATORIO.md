@@ -599,7 +599,7 @@ backend/
 │   └── server.js                API HTTP
 └── testes/                      os scripts que geraram as evidências
 
-evidencias/                      saídas reais + README.md com os prints sugeridos
+evidencias/                      saídas reais dos testes + README.md explicando cada arquivo
 ```
 
 ---
