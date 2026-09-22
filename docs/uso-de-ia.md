@@ -48,13 +48,25 @@ comportamento das rotas antes da entrega; decisões de modelagem (ex.: simplific
 autenticação e persistência, listadas em `docs/arquitetura.md`, seção 4) foram deliberadas e
 documentadas, não deixadas como lacunas silenciosas.
 
-## 3. Outras ferramentas
+## 3. Claude Code — backend de concorrência e fila (entrega de FCCPD, Unidade 1)
 
-*(Espaço reservado para a equipe registrar o uso de outras IAs — ex.: ChatGPT para textos de
-apoio, brainstorm de nomes/copy, ou revisão de conteúdo — indicando ferramenta, trecho do
-projeto em que foi usada e o que foi gerado por IA vs. revisado/ajustado pela equipe.)*
+A entrega de Fundamentos de Computação Concorrente, Paralela e Distribuída (controle de
+concorrência no checkout e fila assíncrona com worker em processo separado) foi desenvolvida
+com o **Claude Code** sobre o repositório existente. O detalhamento — o que a IA fez, quais
+decisões foram tomadas pela aluna, e como o trabalho foi conduzido — está na **seção 6 do
+[`RELATORIO.md`](../RELATORIO.md)**, na raiz do repositório, junto com as evidências em
+`evidencias/`.
 
-## 4. Responsabilidade final
+## 4. Outras ferramentas
+
+**ChatGPT, Gemini e GitHub Copilot** foram utilizados na entrega de FCCPD como apoio de
+**estudo**, para esclarecer conceitos da disciplina (race condition, lock, thread × processo,
+fila, idempotência). Conforme declarado pela aluna, não geraram código entregue.
+
+*(Espaço para a equipe registrar outros usos — indicando ferramenta, trecho do projeto em que
+foi usada e o que foi gerado por IA vs. revisado/ajustado pela equipe.)*
+
+## 5. Responsabilidade final
 
 Conforme orientação da disciplina, o uso de IA generativa foi tratado como apoio ao
 desenvolvimento, não como substituto do entendimento do time sobre a solução: a equipe é
