@@ -155,6 +155,61 @@ Medição: 40 compras simultâneas com carrinhos em ordem inversa → **0 deadlo
 tem que morar no banco.* Proteger um recurso compartilhado com uma trava privada é o erro de
 arquitetura por trás de quase todo overselling em produção.
 
+### 2.5 Correspondência com os conceitos da disciplina
+
+O material da disciplina trata sincronização no nível da **memória compartilhada**: threads de
+um mesmo processo, protegidas por mutex, semáforo ou monitor (aulas *Sincronização: Seção
+Crítica* e *Aula 7 — Semáforos e Monitores*). Esta entrega aplica os mesmos conceitos **um
+nível abaixo**, no banco de dados, pelo motivo dado na seção 2.4: o estado compartilhado do
+Origem não vive na memória de um processo — vive numa linha de tabela, acessada por processos
+distintos, possivelmente em máquinas distintas.
+
+| Conceito da disciplina | Onde ele aparece nesta entrega |
+|---|---|
+| **Seção crítica** — o trecho que lê e escreve o recurso compartilhado | O trecho que confere e baixa `produto.estoque`. Na versão ingênua ele é o par `SELECT` → `UPDATE`; na segura, um único comando |
+| **Exclusão mútua** | O *lock de linha* que o PostgreSQL toma no `UPDATE`: uma transação por vez altera aquela linha (seção 2.2) |
+| **Progresso** | O lock é por **linha**, não global: compras de produtos diferentes não esperam umas pelas outras. Um mutex de aplicação travaria o checkout inteiro |
+| **Espera limitada** | O banco atende a fila de espera do lock e reavalia a condição ao acordar; nenhuma transação é preterida indefinidamente |
+| **Mutex / lock como "passe único de entrada"** | O passe existe — mas mora **no banco**, que é o recurso compartilhado, e não na memória de um processo (seção 2.4) |
+| **`unlock()` no `finally` / `with`** | `cliente.release()` no `finally` de `comTransacao()` (`src/db.js`), e o `ROLLBACK` no `catch`: exceção nenhuma pode deixar conexão ou lock presos |
+| **Semáforo contador** | Ver abaixo — o estoque **é** um semáforo contador |
+| **Monitor** (lock + variável de condição) | A transação cumpre esse papel: o banco junta, numa estrutura só, a trava e a reavaliação da condição (`AND estoque >= :qtd`) ao acordar. Não é um monitor literal — é o mesmo empacotamento de responsabilidades |
+| **Deadlock** | Seção 2.3: provocado de propósito no teste e eliminado por ordem única de aquisição — a mesma estratégia que a dinâmica do Jantar dos Filósofos pede para combinar na Rodada 2 |
+| **Livelock** | Evitado na fila (seção 3.6) |
+| **Starvation** | Evitada na fila pela ordem FIFO (seção 3.6) |
+
+#### O estoque é um semáforo contador
+
+A *Aula 7* abre perguntando: *"e se eu tiver 3 impressoras idênticas e 10 processos
+disputando? Um mutex ainda resolve?"* — e responde com o **semáforo contador**, cujo valor
+inicial é o número de recursos disponíveis, com `wait/P` decrementando e `signal/V`
+devolvendo.
+
+O teste desta entrega é exatamente esse cenário: **10 unidades em estoque e 50 compradores
+simultâneos**. E o comando do checkout seguro é a operação `wait/P`:
+
+```sql
+UPDATE produto SET estoque = estoque - :qtd
+ WHERE id = :id AND estoque >= :qtd;     -- decrementa SE houver vaga
+```
+
+Três diferenças em relação ao semáforo da aula, que valem ser ditas em voz alta:
+
+1. **Onde o contador mora.** Num `Semaphore(3)` de Python ou Java, o contador é uma variável
+   na memória do processo — e some quando ele cai. Aqui é uma coluna: sobrevive a reinício,
+   e é visível para todos os processos, em qualquer máquina.
+2. **Não bloqueia: recusa.** O `wait/P` clássico põe a thread para dormir até liberar uma
+   vaga. Aqui, se não há saldo, o comando afeta 0 linhas e a API responde **409** de imediato
+   — o equivalente a um `tryAcquire()`. Faz sentido no domínio: a peça é única e artesanal, e
+   esperar por um estoque que talvez nunca volte seria pior para o comprador que a recusa.
+3. **Um `signal/V` também existe**, embora não implementado nesta entrega: o cancelamento de
+   pedido, que devolveria as unidades ao contador.
+
+Há ainda um segundo semáforo contador no sistema, esse explícito: `PG_POOL_MAX` (`src/db.js`),
+o tamanho do pool de conexões. Ele é o "número de vagas" para conversar com o banco — com
+`max = 10`, no máximo 10 checkouts falam com o banco ao mesmo tempo e os demais esperam a vez
+dentro da aplicação. É a mesma ideia das 3 impressoras do slide.
+
 ---
 
 ## 3. Fila assíncrona
@@ -278,6 +333,63 @@ com uma função de hash). O critério avaliado é que o trabalho pesado saia do
 resposta HTTP; trocar essa função por `sharp.resize()` não mudaria nada na fila. A decisão
 está declarada em comentário no próprio
 [`backend/src/tarefas.js`](backend/src/tarefas.js), não omitida.
+
+### 3.6 A fila é o problema do produtor-consumidor
+
+A demonstração ao vivo da *Aula 7* é o **produtor-consumidor** com dois semáforos:
+
+```python
+vagas = Semaphore(3)   # espaços livres no buffer
+itens = Semaphore(0)   # itens disponíveis para consumir
+```
+
+A Etapa 2 é esse mesmo problema, resolvido com uma fila persistente no lugar dos dois
+semáforos em memória:
+
+| Produtor-consumidor da aula | Nesta entrega |
+|---|---|
+| Produtor (thread) | A API HTTP, no checkout (`src/pedido.js`) |
+| Consumidor (thread) | O worker, em **processo separado** (`src/worker.js`) |
+| `buffer` compartilhado em memória | A tabela `evento_assincrono` |
+| Semáforo `itens` — avisa que há o que consumir | *Polling*: o worker pergunta ao banco a cada 500 ms |
+| Semáforo `vagas` — limita o tamanho do buffer | Não existe: a fila é ilimitada (ver limitação 7) |
+
+As duas diferenças são escolhas, não omissões. O buffer em memória morre com o processo; uma
+tabela sobrevive à queda do worker, e sobreviver é requisito da entrega. E o `itens.acquire()`
+só funciona entre threads que compartilham memória — entre processos, seria preciso um sinal
+que atravessasse essa fronteira (`LISTEN/NOTIFY` do PostgreSQL faria isso; o *polling* é a
+versão simples da mesma ideia).
+
+#### Livelock e starvation, os outros dois problemas da Aula 7
+
+A *Aula 7* insiste que a própria ferramenta de sincronização pode criar um problema novo. Os
+três aparecem — ou poderiam aparecer — aqui:
+
+- **Deadlock** — tratado na seção 2.3, medido na 4.2: zero ocorrências.
+- **Livelock** ("as threads mudam de estado, cedem uma à outra, mas nenhuma termina"). O
+  desenho de risco está no próprio slide de diagnóstico: *soltar o recurso, esperar, tentar de
+  novo*, em ciclo. É exatamente a forma de um retry mal feito. A fila evita isso com **duas**
+  travas: o backoff **exponencial** (a espera cresce, em vez de repetir no mesmo ritmo) e o
+  **limite de tentativas** com dead-letter — passado o limite, o job **para** em vez de tentar
+  para sempre.
+- **Starvation** ("o sistema progride para as outras, mas uma tarefa específica nunca é
+  atendida"). A reserva usa `ORDER BY disponivel_em, id`, isto é, **FIFO**: um job antigo é
+  sempre servido antes de um recém-chegado, e nenhum fica para trás enquanto outros furam a
+  fila. É a *espera limitada* do terceiro requisito da seção crítica, aplicada à fila.
+
+#### Onde entram as Aulas 10 e 11
+
+- **Aula 10 (redes)** — "processos em máquinas diferentes, zero memória em comum, comunicação
+  por mensagens". É precisamente a relação entre a API e o worker: eles não compartilham
+  variável nenhuma; trocam **mensagens**, e a caixa postal é a tabela da fila. É também o
+  argumento central contra o mutex em memória (seção 2.4). A API, por sua vez, é um servidor
+  TCP: HTTP sobre TCP, pelo motivo do slide — uma compra precisa de entrega garantida e
+  ordenada, não de *fire-and-forget*.
+- **Aula 11 (serialização)** — a coluna `payload` é `JSONB`: a tarefa é **serializada** para
+  atravessar a fronteira de processo e o tempo (é gravada agora e lida minutos depois). JSON
+  pelos motivos do slide: legível, sem etapa de compilação, depurável direto no `psql`. O
+  custo do JSON — payload maior — é irrelevante aqui, porque esses bytes não viajam pela rede,
+  vão para o disco do próprio banco.
 
 ---
 
@@ -533,16 +645,42 @@ cada etapa para conferência. Os trechos cuja explicação exige mais atenção 
 foram sinalizados explicitamente durante o desenvolvimento — em particular o funcionamento do
 `SKIP LOCKED` e a fragilidade do *visibility timeout* descrita na seção 7.
 
-> **A completar pela aluna antes da entrega final** (o restante desta seção não pode ser
-> redigido pela IA sem inventar fatos):
->
-> - Outras ferramentas de IA utilizadas em qualquer momento deste trabalho (ChatGPT, Gemini,
->   Copilot ou outra), indicando em que parte e para quê.
-> - Em que medida o código foi revisado e executado pela aluna, além de acompanhado.
-> - Material, aula ou orientação específica do professor que tenha guiado a escolha da
->   técnica.
+### 6.4 Outras ferramentas de IA utilizadas
 
-### 6.4 Responsabilidade
+Além do Claude Code, foram utilizados **ChatGPT**, **Gemini** e **GitHub Copilot**. Conforme
+declarado pela aluna, o uso dessas três ferramentas neste trabalho limitou-se a **esclarecer
+conceitos da disciplina** — race condition, lock, diferença entre thread e processo, fila,
+idempotência — como apoio de estudo, e não à geração do código entregue. O código deste
+backend foi produzido com o Claude Code, nos termos descritos nas seções 6.1 a 6.3.
+
+O uso de IA nas etapas anteriores do projeto (Figma Make no protótipo visual e Claude Code no
+frontend e na Fake API) está registrado em [`docs/uso-de-ia.md`](docs/uso-de-ia.md).
+
+### 6.5 Revisão e execução pela aluna
+
+A aluna executou o ambiente na própria máquina — subiu o banco em Docker e a API
+(`docker compose up -d` e `npm run api`) — e rodou a bateria de testes automatizados,
+conferindo os veredictos de cada cenário contra o que havia sido explicado. As evidências da
+seção 4 foram, portanto, reproduzidas fora da sessão de desenvolvimento assistido.
+
+As decisões de projeto da seção 6.2 foram tomadas pela aluna a partir da exposição dos prós e
+contras de cada alternativa, antes da implementação.
+
+### 6.6 Conferência com o material da disciplina
+
+A aluna forneceu os slides das aulas de *Sincronização: Seção Crítica*, *Aula 7 — Semáforos,
+Monitores, Deadlock/Livelock/Starvation*, *Aula 10 — Fundamentos de Redes* e *Aula 11 —
+Serialização e Marshalling*. A solução já implementada foi conferida contra esse material
+antes da entrega, e a correspondência termo a termo está registrada nas **seções 2.5 e 3.6**:
+seção crítica, exclusão mútua, progresso, espera limitada, semáforo contador,
+produtor-consumidor, deadlock, livelock e starvation.
+
+A conclusão dessa conferência é que a entrega **aplica** os conceitos das aulas, e não um
+caminho paralelo a eles: o que muda é o nível em que a exclusão mútua é obtida — no banco, e
+não na memória de um processo — pela razão exposta na seção 2.4, que é, ela própria, o
+desdobramento da pergunta de abertura da Aula 7 ("um mutex ainda resolve?").
+
+### 6.7 Responsabilidade
 
 Conforme a orientação da disciplina, o uso de IA generativa foi tratado como apoio ao
 desenvolvimento e não como substituto do entendimento da solução. Todo o código desta entrega
@@ -570,5 +708,10 @@ Registradas abertamente, porque são as perguntas mais prováveis de uma banca:
 6. **O frontend não foi alterado.** A Fake API do frontend mantém a versão em memória; o
    backend real desta entrega é consumido pelos scripts de teste. Integrar a vitrine ao
    backend é trabalho da Avaliação 2 e arriscaria quebrar a Avaliação 1, já publicada.
-7. **Arquitetura distribuída, microsserviços e paralelismo real** estão fora de escopo por
+7. **A fila é ilimitada.** No produtor-consumidor clássico, um semáforo `vagas` limita o
+   tamanho do buffer e segura o produtor quando ele enche. Aqui o produtor nunca é segurado:
+   se o worker ficar dias fora do ar, a tabela cresce sem teto. Em produção isso se resolve
+   monitorando o tamanho da fila e aplicando *backpressure*; para o volume desta entrega, não
+   se justifica.
+8. **Arquitetura distribuída, microsserviços e paralelismo real** estão fora de escopo por
    definição — são objeto da Unidade 2.

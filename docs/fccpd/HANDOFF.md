@@ -400,6 +400,14 @@ segurar qualquer coisa que Ana precise.
 > **Frase para decorar:** *deadlock exige um ciclo de espera; com ordem única de aquisição o
 > ciclo é impossível, e a espera vira uma fila reta — que sempre anda.*
 
+> **Ponte com os slides do professor:** a correspondência entre esta entrega e o que foi dado
+> em aula (seção crítica, exclusão mútua, progresso, espera limitada, mutex, semáforo contador,
+> monitor, produtor-consumidor, deadlock, livelock, starvation, e as Aulas 10 e 11) está nas
+> **seções 2.5 e 3.6 do `RELATORIO.md`**. Destaque: `produto.estoque` é um **semáforo
+> contador** persistido no banco, e o `UPDATE ... WHERE estoque >= :qtd` é a operação
+> `wait/P` — a Aula 7 abre com "3 impressoras e 10 processos"; aqui são 10 bonecas de barro e
+> 50 compradores.
+
 ### Fila assíncrona: os termos que o professor vai cobrar
 
 **Fila de mensagens** = lista de tarefas para depois. A API não executa a tarefa:
@@ -479,15 +487,17 @@ fora da transação do banco.
 
 As quatro etapas estão concluídas. O que resta **depende da aluna**, não de código:
 
-1. **Preencher o bloco destacado na seção 6.3 do [`RELATORIO.md`](../../RELATORIO.md)** —
-   outras IAs usadas, em que medida o código foi revisado/executado por ela, e material do
-   professor que tenha guiado a escolha. A IA deixou isso em aberto de propósito: preencher
-   sem perguntar seria inventar.
-2. **Tirar os prints de tela** listados em [`evidencias/README.md`](../../evidencias/README.md).
-3. **Estudar a seção 6 deste arquivo** para a defesa oral. Os dois pontos mais prováveis de
-   pergunta: como o `SKIP LOCKED` divide a fila, e por que o *visibility timeout* é o ponto
-   frágil do desenho (a resposta certa é "quem segura o estrago é a idempotência").
-4. **Abrir o PR** de `feat/fccpd-concorrencia` para `main`, se a entrega for por pull request.
+1. **Tirar os prints de tela** listados em [`evidencias/README.md`](../../evidencias/README.md).
+2. **Estudar a seção 6 deste arquivo** e as **seções 2.5 e 3.6 do
+   [`RELATORIO.md`](../../RELATORIO.md)** para a defesa oral. As 2.5 e 3.6 fazem a ponte com
+   os slides do professor (seção crítica, semáforo contador, produtor-consumidor, deadlock,
+   livelock, starvation) — é o material mais provável de virar pergunta. Os dois pontos mais
+   delicados continuam sendo: como o `SKIP LOCKED` divide a fila, e por que o *visibility
+   timeout* é o ponto frágil do desenho (a resposta certa é "quem segura o estrago é a
+   idempotência").
+3. **Abrir o PR** de `feat/fccpd-concorrencia` para `main`, se a entrega for por pull request,
+   e resolver a duplicação com a branch `EllySantiago/main`, que traz uma implementação
+   paralela do mesmo enunciado em `fccpd-concorrencia-estoque/`.
 
 ## 8. Prompt para retomar com a IA
 
