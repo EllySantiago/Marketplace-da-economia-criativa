@@ -622,9 +622,10 @@ FCCPD.
 - **Scripts de teste** e geração da pasta `evidencias/`.
 - **Redação** deste relatório, dos comentários explicativos no código e da documentação
   interna de trabalho da equipe.
-- **Material de estudo**: as explicações de race condition, lock de linha,
-  deadlock, ack, idempotência e `SKIP LOCKED` foram produzidas pela IA a pedido da aluna,
-  que informou não ter acompanhado parte das aulas da disciplina.
+- **Material de estudo**: as explicações de race condition, lock de linha, deadlock, ack,
+  idempotência e `SKIP LOCKED` foram produzidas pela IA a pedido da aluna, com a finalidade
+  explícita de **aprender os conceitos** antes de defender as decisões técnicas — e não de
+  substituir esse entendimento.
 
 ### 6.2 O que foi decidido pela aluna
 
