@@ -5,7 +5,37 @@ todo o país. Projeto Integrador — **Avaliação 1: Frontend responsivo com Fa
 
 **Equipe:** Ana Beatriz Lopes, Everton Nunes, Drielly Santiago e Thainá Pontes.
 
-## Como executar o projeto
+---
+
+## FCCPD — Unidade 1: concorrência no checkout e fila assíncrona
+
+Entrega de Fundamentos de Computação Concorrente, Paralela e Distribuída, construída sobre
+este mesmo projeto. Comece por aqui:
+
+| | |
+|---|---|
+| **[RELATORIO.md](RELATORIO.md)** | o relatório da entrega: pontos concorrentes, técnica escolhida e alternativas descartadas, desenho da fila, metodologia dos testes e uso de IA |
+| **[evidencias/](evidencias/)** | as saídas reais dos testes, com um [README](evidencias/README.md) explicando cada arquivo |
+| **[backend/](backend/)** | a API, o worker em processo separado e os scripts que geraram as evidências |
+
+Resultado em uma linha: 50 compras simultâneas de um produto com 10 unidades →
+**10 aprovadas, 40 rejeitadas, estoque final 0**. A versão ingênua, com o mesmo teste,
+aprovou as 50 e perdeu 41 escritas.
+
+Para rodar (precisa de Docker e Node 20+):
+
+```bash
+cd backend
+docker compose up -d      # PostgreSQL com schema e dados de teste
+npm install
+npm run api               # terminal 1 — http://localhost:3333
+npm run worker            # terminal 2 — consumidor da fila
+npm run evidencias        # regrava a pasta evidencias/ do zero
+```
+
+---
+
+## Como executar o projeto (frontend, Avaliação 1)
 
 Pré-requisitos: Node.js 20+ e npm.
 

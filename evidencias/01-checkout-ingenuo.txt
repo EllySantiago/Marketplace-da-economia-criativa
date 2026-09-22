@@ -1,0 +1,24 @@
+══════════════════════════════════════════════════════════════════════════════
+TESTE DE CONCORRÊNCIA NO CHECKOUT — rota /pedidos-naive
+versão: INGÊNUA (com race condition)
+50 compras simultâneas de 1 unidade · produto 1 · estoque inicial 10
+quando: 2026-09-21T18:54:23.159Z
+══════════════════════════════════════════════════════════════════════════════
+──────────────────────────────────────────────────────────────────────────────
+RESPOSTAS
+  HTTP 201 (criado): 50
+──────────────────────────────────────────────────────────────────────────────
+ESTOQUE
+  inicial ................................ 10
+  final .................................. 1
+  compras aprovadas (HTTP 201) ........... 50
+  baixa efetivamente registrada .......... 9
+  ESCRITAS PERDIDAS (lost update) ........ 41
+  unidades vendidas além do estoque ...... 40
+  duração da rajada ...................... 1210 ms
+──────────────────────────────────────────────────────────────────────────────
+🔴 VEREDITO: INCONSISTENTE.
+   OVERSELLING: 50 vendas confirmadas para 10 unidades em estoque.
+   LOST UPDATE: 50 baixas foram executadas, mas o estoque caiu apenas 9.
+   41 escritas foram sobrescritas por outras — o número do estoque perdeu o sentido.
+══════════════════════════════════════════════════════════════════════════════

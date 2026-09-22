@@ -1,0 +1,286 @@
+TESTE DE CONFIABILIDADE DA FILA · 2026-09-21T18:54:27.998Z
+
+══════════════════════════════════════════════════════════════════════════════
+PARTE 1 — 200 JOBS, WORKER MORTO COM kill -9 NO MEIO
+══════════════════════════════════════════════════════════════════════════════
+   enfileirados: 200 jobs
+   ▸ worker A iniciado (PID 92558)
+   │ [18:54:28.868] [worker thainapontes#92558] iniciado. lote=5 intervalo=500ms taxaFalha=0
+   │ [18:54:28.887] [worker thainapontes#92558] aguardando jobs… (Ctrl+C para encerrar com elegância)
+   │ [18:54:29.176] [worker thainapontes#92558] ✅ job 877 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:29.341] [worker thainapontes#92558] ✅ job 875 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:29.506] [worker thainapontes#92558] ✅ job 874 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:29.671] [worker thainapontes#92558] ✅ job 876 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:29.836] [worker thainapontes#92558] ✅ job 873 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:30.016] [worker thainapontes#92558] ✅ job 879 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:30.183] [worker thainapontes#92558] ✅ job 880 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:30.346] [worker thainapontes#92558] ✅ job 878 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:30.509] [worker thainapontes#92558] ✅ job 881 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:30.669] [worker thainapontes#92558] ✅ job 882 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:30.836] [worker thainapontes#92558] ✅ job 884 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:30.996] [worker thainapontes#92558] ✅ job 885 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:31.161] [worker thainapontes#92558] ✅ job 883 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:31.331] [worker thainapontes#92558] ✅ job 887 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:31.494] [worker thainapontes#92558] ✅ job 886 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:31.661] [worker thainapontes#92558] ✅ job 891 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:31.825] [worker thainapontes#92558] ✅ job 888 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:31.989] [worker thainapontes#92558] ✅ job 890 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:32.153] [worker thainapontes#92558] ✅ job 889 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:32.323] [worker thainapontes#92558] ✅ job 892 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:32.508] [worker thainapontes#92558] ✅ job 895 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:32.674] [worker thainapontes#92558] ✅ job 896 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:32.845] [worker thainapontes#92558] ✅ job 897 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:33.012] [worker thainapontes#92558] ✅ job 893 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:33.176] [worker thainapontes#92558] ✅ job 894 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:33.348] [worker thainapontes#92558] ✅ job 900 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:33.512] [worker thainapontes#92558] ✅ job 902 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:33.675] [worker thainapontes#92558] ✅ job 899 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:33.840] [worker thainapontes#92558] ✅ job 901 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:34.004] [worker thainapontes#92558] ✅ job 898 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+
+   ☠️  kill -9 no worker A (PID 92558) — morte súbita, sem limpeza
+   estado no instante da queda: 30 processados · 5 presos em 'processando' · 165 na fila
+
+   ▸ worker B iniciado (PID 92728)
+   │ [18:54:35.088] [worker thainapontes#92728] iniciado. lote=5 intervalo=500ms taxaFalha=0
+   │ [18:54:35.108] [worker thainapontes#92728] aguardando jobs… (Ctrl+C para encerrar com elegância)
+   │ [18:54:35.387] [worker thainapontes#92728] ✅ job 912 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:35.558] [worker thainapontes#92728] ✅ job 908 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:35.726] [worker thainapontes#92728] ✅ job 910 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:35.891] [worker thainapontes#92728] ✅ job 909 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:36.132] [worker thainapontes#92728] ✅ job 911 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:36.351] [worker thainapontes#92728] ✅ job 917 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:36.520] [worker thainapontes#92728] ✅ job 916 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:36.686] [worker thainapontes#92728] ✅ job 913 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:36.851] [worker thainapontes#92728] ✅ job 915 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:37.017] [worker thainapontes#92728] ✅ job 914 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:37.022] [worker thainapontes#92728] ♻️  5 job(s) órfão(s) recuperado(s) — algum worker caiu sem dar ack.
+   │ [18:54:37.194] [worker thainapontes#92728] ✅ job 907 [notificar_pedido] ok (tentativa 2) — notificação gravada para o usuário 1
+   │ [18:54:37.363] [worker thainapontes#92728] ✅ job 906 [notificar_pedido] ok (tentativa 2) — notificação gravada para o usuário 1
+   │ [18:54:37.528] [worker thainapontes#92728] ✅ job 903 [notificar_pedido] ok (tentativa 2) — notificação gravada para o usuário 1
+   │ [18:54:37.693] [worker thainapontes#92728] ✅ job 905 [notificar_pedido] ok (tentativa 2) — notificação gravada para o usuário 1
+   │ [18:54:37.859] [worker thainapontes#92728] ✅ job 904 [notificar_pedido] ok (tentativa 2) — notificação gravada para o usuário 1
+   │ [18:54:38.035] [worker thainapontes#92728] ✅ job 918 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:38.199] [worker thainapontes#92728] ✅ job 920 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:38.359] [worker thainapontes#92728] ✅ job 922 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:38.522] [worker thainapontes#92728] ✅ job 921 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:38.684] [worker thainapontes#92728] ✅ job 919 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:38.855] [worker thainapontes#92728] ✅ job 923 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:39.019] [worker thainapontes#92728] ✅ job 927 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:39.183] [worker thainapontes#92728] ✅ job 926 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:39.345] [worker thainapontes#92728] ✅ job 925 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:39.509] [worker thainapontes#92728] ✅ job 924 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:39.681] [worker thainapontes#92728] ✅ job 931 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:39.846] [worker thainapontes#92728] ✅ job 929 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:40.010] [worker thainapontes#92728] ✅ job 932 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:40.174] [worker thainapontes#92728] ✅ job 928 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:40.339] [worker thainapontes#92728] ✅ job 930 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:40.506] [worker thainapontes#92728] ✅ job 934 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:40.671] [worker thainapontes#92728] ✅ job 937 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:40.837] [worker thainapontes#92728] ✅ job 936 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:41.009] [worker thainapontes#92728] ✅ job 933 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:41.172] [worker thainapontes#92728] ✅ job 935 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:41.344] [worker thainapontes#92728] ✅ job 942 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:41.508] [worker thainapontes#92728] ✅ job 938 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:41.672] [worker thainapontes#92728] ✅ job 939 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:41.835] [worker thainapontes#92728] ✅ job 941 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:42.002] [worker thainapontes#92728] ✅ job 940 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:42.176] [worker thainapontes#92728] ✅ job 947 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:42.340] [worker thainapontes#92728] ✅ job 946 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:42.503] [worker thainapontes#92728] ✅ job 945 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:42.668] [worker thainapontes#92728] ✅ job 943 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:42.834] [worker thainapontes#92728] ✅ job 944 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:43.011] [worker thainapontes#92728] ✅ job 951 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:43.187] [worker thainapontes#92728] ✅ job 950 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:43.352] [worker thainapontes#92728] ✅ job 952 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:43.515] [worker thainapontes#92728] ✅ job 948 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:43.691] [worker thainapontes#92728] ✅ job 949 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:43.882] [worker thainapontes#92728] ✅ job 955 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:44.052] [worker thainapontes#92728] ✅ job 954 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:44.217] [worker thainapontes#92728] ✅ job 953 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:44.381] [worker thainapontes#92728] ✅ job 956 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:44.545] [worker thainapontes#92728] ✅ job 957 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:44.718] [worker thainapontes#92728] ✅ job 962 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:44.883] [worker thainapontes#92728] ✅ job 959 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:45.046] [worker thainapontes#92728] ✅ job 958 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:45.212] [worker thainapontes#92728] ✅ job 961 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:45.377] [worker thainapontes#92728] ✅ job 960 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:45.549] [worker thainapontes#92728] ✅ job 967 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:45.719] [worker thainapontes#92728] ✅ job 963 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:45.883] [worker thainapontes#92728] ✅ job 966 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:46.045] [worker thainapontes#92728] ✅ job 964 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:46.210] [worker thainapontes#92728] ✅ job 965 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:46.376] [worker thainapontes#92728] ✅ job 970 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:46.539] [worker thainapontes#92728] ✅ job 969 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:46.714] [worker thainapontes#92728] ✅ job 972 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:46.888] [worker thainapontes#92728] ✅ job 971 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:47.056] [worker thainapontes#92728] ✅ job 968 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:47.230] [worker thainapontes#92728] ✅ job 974 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:47.396] [worker thainapontes#92728] ✅ job 975 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:47.561] [worker thainapontes#92728] ✅ job 977 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:47.725] [worker thainapontes#92728] ✅ job 976 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:47.895] [worker thainapontes#92728] ✅ job 973 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:48.070] [worker thainapontes#92728] ✅ job 981 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:48.234] [worker thainapontes#92728] ✅ job 980 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:48.397] [worker thainapontes#92728] ✅ job 979 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:48.562] [worker thainapontes#92728] ✅ job 982 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:48.726] [worker thainapontes#92728] ✅ job 978 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:48.891] [worker thainapontes#92728] ✅ job 986 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:49.055] [worker thainapontes#92728] ✅ job 985 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:49.220] [worker thainapontes#92728] ✅ job 983 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:49.384] [worker thainapontes#92728] ✅ job 984 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:49.547] [worker thainapontes#92728] ✅ job 987 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:49.720] [worker thainapontes#92728] ✅ job 991 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:49.883] [worker thainapontes#92728] ✅ job 988 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:50.046] [worker thainapontes#92728] ✅ job 989 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:50.211] [worker thainapontes#92728] ✅ job 992 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:50.375] [worker thainapontes#92728] ✅ job 990 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:50.541] [worker thainapontes#92728] ✅ job 997 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:50.704] [worker thainapontes#92728] ✅ job 995 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:50.871] [worker thainapontes#92728] ✅ job 994 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:51.035] [worker thainapontes#92728] ✅ job 996 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:51.198] [worker thainapontes#92728] ✅ job 993 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:51.373] [worker thainapontes#92728] ✅ job 1002 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:51.537] [worker thainapontes#92728] ✅ job 1001 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:51.701] [worker thainapontes#92728] ✅ job 1000 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:51.864] [worker thainapontes#92728] ✅ job 999 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:52.029] [worker thainapontes#92728] ✅ job 998 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:52.201] [worker thainapontes#92728] ✅ job 1004 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:52.365] [worker thainapontes#92728] ✅ job 1006 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:52.531] [worker thainapontes#92728] ✅ job 1007 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:52.695] [worker thainapontes#92728] ✅ job 1003 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:52.858] [worker thainapontes#92728] ✅ job 1005 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:53.038] [worker thainapontes#92728] ✅ job 1011 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:53.203] [worker thainapontes#92728] ✅ job 1009 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:53.369] [worker thainapontes#92728] ✅ job 1008 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:53.533] [worker thainapontes#92728] ✅ job 1012 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:53.701] [worker thainapontes#92728] ✅ job 1010 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:53.872] [worker thainapontes#92728] ✅ job 1013 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:54.039] [worker thainapontes#92728] ✅ job 1015 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:54.198] [worker thainapontes#92728] ✅ job 1016 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:54.364] [worker thainapontes#92728] ✅ job 1017 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:54.526] [worker thainapontes#92728] ✅ job 1014 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:54.697] [worker thainapontes#92728] ✅ job 1019 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:54.864] [worker thainapontes#92728] ✅ job 1020 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:55.027] [worker thainapontes#92728] ✅ job 1018 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:55.192] [worker thainapontes#92728] ✅ job 1021 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:55.355] [worker thainapontes#92728] ✅ job 1022 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:55.521] [worker thainapontes#92728] ✅ job 1027 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:55.687] [worker thainapontes#92728] ✅ job 1026 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:55.852] [worker thainapontes#92728] ✅ job 1024 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:56.012] [worker thainapontes#92728] ✅ job 1025 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:56.203] [worker thainapontes#92728] ✅ job 1023 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:56.377] [worker thainapontes#92728] ✅ job 1032 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:56.555] [worker thainapontes#92728] ✅ job 1031 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:56.722] [worker thainapontes#92728] ✅ job 1028 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:56.893] [worker thainapontes#92728] ✅ job 1029 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:57.055] [worker thainapontes#92728] ✅ job 1030 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:57.225] [worker thainapontes#92728] ✅ job 1037 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:57.390] [worker thainapontes#92728] ✅ job 1033 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:57.557] [worker thainapontes#92728] ✅ job 1036 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:57.724] [worker thainapontes#92728] ✅ job 1035 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:57.893] [worker thainapontes#92728] ✅ job 1034 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:58.067] [worker thainapontes#92728] ✅ job 1042 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:58.228] [worker thainapontes#92728] ✅ job 1041 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:58.392] [worker thainapontes#92728] ✅ job 1040 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:58.557] [worker thainapontes#92728] ✅ job 1039 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:58.721] [worker thainapontes#92728] ✅ job 1038 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:58.897] [worker thainapontes#92728] ✅ job 1043 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:59.061] [worker thainapontes#92728] ✅ job 1044 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:59.225] [worker thainapontes#92728] ✅ job 1045 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:59.395] [worker thainapontes#92728] ✅ job 1047 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:59.557] [worker thainapontes#92728] ✅ job 1046 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:59.725] [worker thainapontes#92728] ✅ job 1049 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:54:59.889] [worker thainapontes#92728] ✅ job 1051 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:00.053] [worker thainapontes#92728] ✅ job 1048 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:00.216] [worker thainapontes#92728] ✅ job 1052 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:00.379] [worker thainapontes#92728] ✅ job 1050 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:00.548] [worker thainapontes#92728] ✅ job 1056 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:00.712] [worker thainapontes#92728] ✅ job 1053 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:00.877] [worker thainapontes#92728] ✅ job 1057 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:01.041] [worker thainapontes#92728] ✅ job 1055 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:01.204] [worker thainapontes#92728] ✅ job 1054 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:01.371] [worker thainapontes#92728] ✅ job 1061 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:01.536] [worker thainapontes#92728] ✅ job 1062 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:01.700] [worker thainapontes#92728] ✅ job 1060 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:01.864] [worker thainapontes#92728] ✅ job 1058 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:02.028] [worker thainapontes#92728] ✅ job 1059 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:02.202] [worker thainapontes#92728] ✅ job 1066 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:02.369] [worker thainapontes#92728] ✅ job 1063 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:02.534] [worker thainapontes#92728] ✅ job 1067 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:02.697] [worker thainapontes#92728] ✅ job 1065 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:02.859] [worker thainapontes#92728] ✅ job 1064 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:03.028] [worker thainapontes#92728] ✅ job 1070 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:03.193] [worker thainapontes#92728] ✅ job 1069 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:03.357] [worker thainapontes#92728] ✅ job 1071 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:03.517] [worker thainapontes#92728] ✅ job 1072 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:03.693] [worker thainapontes#92728] ✅ job 1068 [notificar_pedido] ok (tentativa 1) — notificação gravada para o usuário 1
+   │ [18:55:03.960] [worker thainapontes#92728] recebi SIGTERM — terminando o job atual antes de sair…
+   │ [18:55:04.198] [worker thainapontes#92728] encerrando: fechando o pool de conexões.
+   │ [18:55:04.199] [worker thainapontes#92728] encerrado.
+──────────────────────────────────────────────────────────────────────────────
+RESULTADO
+  jobs enfileirados ...................... 200
+  jobs processados ....................... 200
+  jobs reentregues (tentativa > 1) ....... 5   <- os órfãos do worker morto
+  efeitos gravados (notificações) ........ 200
+  efeitos DISTINTOS ...................... 200
+  jobs perdidos .......................... 0
+──────────────────────────────────────────────────────────────────────────────
+✅ VEREDITO: nada perdido, nada duplicado.
+   Os 5 job(s) que o worker A segurava quando morreu voltaram à fila
+   (varredura de órfãos) e foram refeitos pelo worker B. Como a entrega é
+   at-least-once, algum pôde executar duas vezes — e a idempotência garantiu
+   que o EFEITO acontecesse uma vez só: 200 notificações, 200 distintas.
+
+
+══════════════════════════════════════════════════════════════════════════════
+PARTE 2 — RETRY COM BACKOFF EXPONENCIAL E DEAD-LETTER (TAXA_FALHA=1)
+══════════════════════════════════════════════════════════════════════════════
+   ▸ worker (100% de falha) iniciado (PID 94114)
+   │ [18:55:05.103] [worker thainapontes#94114] iniciado. lote=5 intervalo=500ms taxaFalha=1
+   │ [18:55:05.122] [worker thainapontes#94114] aguardando jobs… (Ctrl+C para encerrar com elegância)
+   │ [18:55:05.404] [worker thainapontes#94114] ⚠️  job 1073 [notificar_pedido] falhou (tentativa 1/4) — nova tentativa em 500 ms. Motivo: Falha simulada (TAXA_FALHA=1) em notificar_pedido(pedido=0, usuario=1)
+   │ [18:55:06.092] [worker thainapontes#94114] ⚠️  job 1073 [notificar_pedido] falhou (tentativa 2/4) — nova tentativa em 1000 ms. Motivo: Falha simulada (TAXA_FALHA=1) em notificar_pedido(pedido=0, usuario=1)
+   │ [18:55:07.313] [worker thainapontes#94114] ⚠️  job 1073 [notificar_pedido] falhou (tentativa 3/4) — nova tentativa em 2000 ms. Motivo: Falha simulada (TAXA_FALHA=1) em notificar_pedido(pedido=0, usuario=1)
+   │ [18:55:09.526] [worker thainapontes#94114] ☠️  job 1073 [notificar_pedido] MORTO após 4 tentativas — vai para a dead-letter. Motivo: Falha simulada (TAXA_FALHA=1) em notificar_pedido(pedido=0, usuario=1)
+   │ [18:55:09.727] [worker thainapontes#94114] recebi SIGTERM — terminando o job atual antes de sair…
+   │ [18:55:10.032] [worker thainapontes#94114] encerrando: fechando o pool de conexões.
+   │ [18:55:10.033] [worker thainapontes#94114] encerrado.
+──────────────────────────────────────────────────────────────────────────────
+RESULTADO
+  job 1073 [notificar_pedido] — status 'morto' após 4/4 tentativas
+  último erro registrado: Falha simulada (TAXA_FALHA=1) em notificar_pedido(pedido=0, usuario=1)
+──────────────────────────────────────────────────────────────────────────────
+✅ VEREDITO: o job tentou de novo com espera crescente (veja os intervalos no log acima),
+   desistiu no limite e foi para a DEAD-LETTER com o motivo guardado — em vez de
+   tentar para sempre e entupir a fila.
+
+
+══════════════════════════════════════════════════════════════════════════════
+PARTE 3 — TRÊS WORKERS SIMULTÂNEOS (SELECT ... FOR UPDATE SKIP LOCKED)
+══════════════════════════════════════════════════════════════════════════════
+   ▸ worker 1 iniciado (PID 94498)
+   ▸ worker 2 iniciado (PID 94499)
+   ▸ worker 3 iniciado (PID 94500)
+──────────────────────────────────────────────────────────────────────────────
+RESULTADO
+  jobs enfileirados ...................... 60
+  jobs processados ....................... 60
+  divisão do trabalho entre os processos:
+    PID 94499: 20 jobs
+    PID 94498: 20 jobs
+    PID 94500: 20 jobs
+  jobs executados por MAIS DE UM worker ... 0
+──────────────────────────────────────────────────────────────────────────────
+✅ VEREDITO: os três processos dividiram a fila e nenhum job foi entregue duas vezes.
+   É o SKIP LOCKED: cada worker PULA as linhas que os outros já travaram, em vez de
+   ficar esperando por elas. Sem ele, três workers renderiam o mesmo que um.
+
+
+══════════════════════════════════════════════════════════════════════════════
+RESUMO
+  Parte 1 — sobrevive à queda do worker, sem perder nem duplicar: ✅
+  Parte 2 — retry com backoff exponencial e dead-letter .........: ✅
+  Parte 3 — SKIP LOCKED divide a fila entre 3 processos .........: ✅
+══════════════════════════════════════════════════════════════════════════════

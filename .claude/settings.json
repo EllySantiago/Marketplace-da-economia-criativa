@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where soffice *)",
+      "Bash(where libreoffice *)",
+      "Read(//c/Program Files/LibreOffice/program/**)",
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/LibreOffice/program/**)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\THAINA~1.SIL\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-thaina-silva-Downloads-Projeto-Marketplace-Artesanato-Marketplace-da-economia-criativa\\\\040e6250-dc7c-4ffb-8cfe-d454944f1b78\\\\scratchpad\\\\check_word.ps1\")",
+      "Bash(pip install *)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\THAINA~1.SIL\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-thaina-silva-Downloads-Projeto-Marketplace-Artesanato-Marketplace-da-economia-criativa\\\\040e6250-dc7c-4ffb-8cfe-d454944f1b78\\\\scratchpad\\\\inspect_doc.ps1\")",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\THAINA~1.SIL\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-thaina-silva-Downloads-Projeto-Marketplace-Artesanato-Marketplace-da-economia-criativa\\\\040e6250-dc7c-4ffb-8cfe-d454944f1b78\\\\scratchpad\\\\inspect_sections.ps1\")",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\THAINA~1.SIL\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-thaina-silva-Downloads-Projeto-Marketplace-Artesanato-Marketplace-da-economia-criativa\\\\040e6250-dc7c-4ffb-8cfe-d454944f1b78\\\\scratchpad\\\\build_doc.ps1\")",
+      "Bash(python3 -)",
+      "Bash(python -)",
+      "Bash(powershell.exe -NoProfile -Command \"Get-Process WINWORD -ErrorAction SilentlyContinue | Select-Object Id,MainWindowTitle,StartTime\")",
+      "Bash(powershell.exe -NoProfile -Command \"\\(Get-Process WINWORD -ErrorAction SilentlyContinue\\).Count\")"
+    ]
+  }
+}
