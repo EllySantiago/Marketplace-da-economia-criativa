@@ -622,7 +622,7 @@ FCCPD.
 - **Scripts de teste** e geração da pasta `evidencias/`.
 - **Redação** deste relatório, dos comentários explicativos no código e da documentação
   interna de trabalho da equipe.
-- **Material de estudo** para a defesa oral: as explicações de race condition, lock de linha,
+- **Material de estudo**: as explicações de race condition, lock de linha,
   deadlock, ack, idempotência e `SKIP LOCKED` foram produzidas pela IA a pedido da aluna,
   que informou não ter acompanhado parte das aulas da disciplina.
 
@@ -641,9 +641,9 @@ aluna antes da implementação:
 
 O trabalho foi conduzido em etapas, com explicação dos conceitos **antes** de cada bloco de
 código, definição de cada termo técnico na primeira vez em que apareceu, e parada ao fim de
-cada etapa para conferência. Os trechos cuja explicação exige mais atenção na apresentação
-foram sinalizados explicitamente durante o desenvolvimento — em particular o funcionamento do
-`SKIP LOCKED` e a fragilidade do *visibility timeout* descrita na seção 7.
+cada etapa para conferência. Os trechos cuja explicação exige mais atenção foram sinalizados
+explicitamente durante o desenvolvimento — em particular o funcionamento do `SKIP LOCKED` e a
+fragilidade do *visibility timeout* descrita na seção 7.
 
 ### 6.4 Outras ferramentas de IA utilizadas
 
