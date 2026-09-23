@@ -82,7 +82,7 @@ docs/       documentação do projeto
   relacionadas (mesmo artesão/técnica/região) e **avaliações de compradores** (ver e enviar).
 - **Artesãos** (`/artesoes`, `/artesoes/[id]`) — listagem e perfil público com catálogo do
   artesão.
-- **Carrinho** (`/carinho`) — adicionar, remover, alterar quantidade, cálculo de frete/total.
+- **Carrinho** (`/carrinho`) — adicionar, remover, alterar quantidade, cálculo de frete/total.
 - **Checkout** (`/checkout` → `/checkout/sucesso`) — endereço de entrega, forma de pagamento
   simulada (cartão/Pix/boleto), confirmação com código de pedido gerado e limpeza do carrinho.
 - **Login / Cadastro** (`/login`, `/cadastro`) — autenticação simulada e criação de conta como
