@@ -3,7 +3,7 @@
 **Disciplina:** Fundamentos de Computação Concorrente, Paralela e Distribuída (FCCPD) — Unidade 1
 **Projeto:** Origem — marketplace de artesanato e economia criativa de Pernambuco
 **Repositório:** <https://github.com/thainapontes/Marketplace-da-economia-criativa>
-**Branch desta entrega:** `feat/fccpd-concorrencia`
+**Branch:** `main` (o trabalho foi desenvolvido na branch `feat/fccpd-concorrencia`, já incorporada à `main`)
 
 ---
 
@@ -407,6 +407,12 @@ condition**, e o teste não provaria nada.
 Todos os números abaixo foram gerados por `npm run evidencias` e estão em
 [`evidencias/`](evidencias/), com a saída bruta de cada execução.
 
+**Sobre a variação entre execuções.** As durações dependem da máquina e da carga do momento e
+mudam a cada rodada. Na versão ingênua, a quantidade exata de escritas perdidas também muda,
+porque depende de como as requisições se intercalam — o que se repete é a inconsistência. Na
+versão segura e nos testes da fila, os resultados de corretude são sempre os mesmos. Os valores
+abaixo são os da execução gravada em `evidencias/`.
+
 ### 4.1 Checkout: antes e depois
 
 50 compras simultâneas de 1 unidade do produto 1, estoque inicial 10.
@@ -419,7 +425,7 @@ Todos os números abaixo foram gerados por `npm run evidencias` e estão em
 | Unidades vendidas além do estoque | **40** | **0** |
 | Escritas perdidas (*lost update*) | **41** | **0** |
 | Estoque negativo | não | não |
-| Duração da rajada | 1210 ms | 609 ms |
+| Duração da rajada | 1210 ms | 380 ms |
 
 Arquivos: [`01-checkout-ingenuo.txt`](evidencias/01-checkout-ingenuo.txt) ·
 [`02-checkout-seguro.txt`](evidencias/02-checkout-seguro.txt)
@@ -447,7 +453,7 @@ impasse.
 |---|---:|
 | HTTP 201 | 40 |
 | `DEADLOCK_DETECTADO` (erro `40P01`) | **0** |
-| Duração | 976 ms |
+| Duração | 933 ms |
 
 Arquivo: [`03-deadlock.txt`](evidencias/03-deadlock.txt)
 
@@ -522,7 +528,6 @@ Pré-requisitos: **Docker** e **Node.js 20+**.
 ```bash
 git clone https://github.com/thainapontes/Marketplace-da-economia-criativa.git
 cd Marketplace-da-economia-criativa/backend
-git switch feat/fccpd-concorrencia
 
 docker compose up -d      # PostgreSQL 16 na porta 5434; aplica schema, seed e fila
 npm install
