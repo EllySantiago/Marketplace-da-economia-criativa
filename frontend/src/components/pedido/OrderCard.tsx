@@ -1,6 +1,8 @@
+import Link from "next/link";
 import type { Pedido } from "@/types/pedido";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDate } from "@/utils/formatDate";
+import { ROTAS } from "@/constants/rotas";
 import OrderStatus from "./OrderStatus";
 
 export default function OrderCard({ pedido }: { pedido: Pedido }) {
@@ -8,7 +10,9 @@ export default function OrderCard({ pedido }: { pedido: Pedido }) {
     <article className="card p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="font-display text-lg">Pedido {pedido.codigo}</p>
+          <Link href={ROTAS.pedido(pedido.codigo)} className="font-display text-lg hover:text-[#C1522A]">
+            Pedido {pedido.codigo}
+          </Link>
           <p className="text-xs text-[#888]">{formatDate(pedido.data)}</p>
         </div>
         <OrderStatus status={pedido.status} />

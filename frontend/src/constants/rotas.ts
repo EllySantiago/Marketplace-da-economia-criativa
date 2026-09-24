@@ -4,7 +4,7 @@ export const ROTAS = {
   produto: (id: number | string) => `/produtos/${id}`,
   artesoes: "/artesoes",
   artesao: (id: number | string) => `/artesoes/${id}`,
-  carrinho: "/carinho",
+  carrinho: "/carrinho",
   checkout: "/checkout",
   checkoutSucesso: (codigo?: string) => (codigo ? `/checkout/sucesso?codigo=${codigo}` : "/checkout/sucesso"),
   login: "/login",
@@ -12,4 +12,5 @@ export const ROTAS = {
   painelArtesao: "/painel-artesao",
   admin: "/admin",
   pedidos: "/pedidos",
+  pedido: (codigo: string) => `/pedidos/${codigo}`,
 } as const;

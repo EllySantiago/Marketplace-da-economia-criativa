@@ -12,7 +12,7 @@ economia criativa de Pernambuco), produzindo um protótipo React autocontido com
 exemplo fixos no próprio código.
 
 Esse protótipo serviu **apenas como referência visual e estrutural** — layout, paleta de
-cores (`src/styles/global.css`), tipografia (Fraunces + Inter) e composição de cada tela. Ele
+cores (`src/styles/globals.css`), tipografia (Fraunces + Inter) e composição de cada tela. Ele
 não foi entregue como está: cada página foi reimplementada na arquitetura real do projeto
 (`app/`, `components/`, `hooks/`, `services/`, `store/`), eliminando todos os dados fixos e
 conectando-a à Fake API. O protótipo original foi removido do repositório após a portagem,
