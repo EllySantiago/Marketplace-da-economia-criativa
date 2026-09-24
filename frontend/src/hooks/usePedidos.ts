@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { DadosNovoPedido, Pedido, StatusPedido } from "@/types/pedido";
-import { obterProximosStatus, pedidosService } from "@/services/api/pedidos.service";
+import { pedidosService } from "@/services/api/pedidos.service";
 
 interface EstadoLista {
   pedidos: Pedido[];
@@ -15,7 +15,7 @@ type Origem = { tipo: "cliente"; email: string } | { tipo: "artesao"; artesaoId:
 /** Lista pedidos por cliente, por artesão ou todos (admin) — mesmo hook, filtro por origem. */
 export function usePedidos(origem: Origem) {
   const [estado, setEstado] = useState<EstadoLista>({ pedidos: [], carregando: true, erro: null });
-  const [atualizandoStatus, setAtualizandoStatus] = useState(false);
+  const [salvandoCodigo, setSalvandoCodigo] = useState<string | null>(null);
   const [erroAtualizacao, setErroAtualizacao] = useState<string | null>(null);
   const chave = JSON.stringify(origem);
 
@@ -38,27 +38,37 @@ export function usePedidos(origem: Origem) {
     carregar();
   }, [carregar]);
 
+  /**
+   * `salvandoCodigo` guarda o código do pedido em atualização (em vez de um booleano
+   * único), pra que só a linha daquele pedido fique desativada/mostre "Salvando..." —
+   * os outros pedidos continuam interativos normalmente.
+   */
   async function atualizarStatus(codigo: string, novoStatus: StatusPedido) {
     const origemAtual: Origem = JSON.parse(chave);
     if (origemAtual.tipo !== "artesao") {
       throw new Error("Apenas artesãos podem atualizar pedidos.");
     }
 
-    setAtualizandoStatus(true);
+    setSalvandoCodigo(codigo);
     setErroAtualizacao(null);
     try {
-      await pedidosService.atualizarStatus(codigo, origemAtual.artesaoId, novoStatus);
-      await carregar();
+      const pedidoAtualizado = await pedidosService.atualizarStatus(codigo, origemAtual.artesaoId, novoStatus);
+      // Atualiza só o pedido alterado no estado local, em vez de recarregar a lista
+      // inteira — evita o "piscar" da tela voltando pro esqueleto de carregamento.
+      setEstado((atual) => ({
+        ...atual,
+        pedidos: atual.pedidos.map((pedido) => (pedido.codigo === codigo ? pedidoAtualizado : pedido)),
+      }));
     } catch (erroCapturado) {
       const mensagem = erroCapturado instanceof Error ? erroCapturado.message : "Não foi possível atualizar o pedido.";
       setErroAtualizacao(mensagem);
       throw erroCapturado;
     } finally {
-      setAtualizandoStatus(false);
+      setSalvandoCodigo(null);
     }
   }
 
-  return { ...estado, recarregar: carregar, atualizarStatus, atualizandoStatus, erroAtualizacao, obterProximosStatus };
+  return { ...estado, recarregar: carregar, atualizarStatus, salvandoCodigo, erroAtualizacao };
 }
 
 /** Busca um pedido específico pelo código (usado na tela de confirmação do checkout). */

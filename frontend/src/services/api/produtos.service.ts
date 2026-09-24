@@ -85,4 +85,20 @@ export const produtosService = {
     });
     await delay(null, 200);
   },
+
+  /**
+   * Inverso de removerEstoque — devolve as unidades ao catálogo. Usado quando um pedido
+   * confirmado é cancelado, para que as peças voltem a ficar disponíveis para venda.
+   * Ignora silenciosamente itens de produto que não existem mais (ex.: removido do
+   * catálogo depois do pedido), em vez de falhar o cancelamento por causa disso.
+   */
+  async devolverEstoque(itens: { produtoId: number; quantidade: number }[]): Promise<void> {
+    itens.forEach((item) => {
+      const produto = produtos.find((atual) => atual.id === item.produtoId);
+      if (produto) {
+        produto.estoque += item.quantidade;
+      }
+    });
+    await delay(null, 200);
+  },
 };

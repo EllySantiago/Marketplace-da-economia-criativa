@@ -9,7 +9,8 @@ import { usePedidos } from "@/hooks/usePedidos";
 import Sidebar from "@/components/layout/Sidebar";
 import ProductForm from "@/components/forms/ProductForm";
 import ProductManageCard from "@/components/produto/ProductManageCard";
-import OrderStatus from "@/components/pedido/OrderStatus";
+import OrderStatus, { rotulosStatus } from "@/components/pedido/OrderStatus";
+import { obterProximosStatus } from "@/services/api/pedidos.service";
 import LoadingState from "@/components/feedback/LoadingState";
 import ErrorState from "@/components/feedback/ErrorState";
 import EmptyState from "@/components/feedback/EmptyState";
@@ -53,9 +54,8 @@ export default function PainelArtesaoPage() {
     carregando: carregandoPedidos,
     erro: erroPedidos,
     atualizarStatus,
-    atualizandoStatus,
+    salvandoCodigo,
     erroAtualizacao,
-    obterProximosStatus,
   } = usePedidos({ tipo: "artesao", artesaoId });
   const { remover, removendo } = useRemoverProduto();
 
@@ -91,6 +91,9 @@ export default function PainelArtesaoPage() {
       await atualizarStatus(codigo, novoStatus);
       setStatusSelecionado((atual) => ({ ...atual, [codigo]: "" }));
     } catch {
+      // Erro já fica visível na tela via erroAtualizacao (setado dentro de atualizarStatus);
+      // nada mais a fazer aqui além de deixar o statusSelecionado como estava, pra
+      // o artesão poder tentar salvar de novo sem escolher a opção outra vez.
     }
   }
 
@@ -222,30 +225,32 @@ export default function PainelArtesaoPage() {
                     <div className="flex items-center gap-2">
                       <OrderStatus status={pedido.status} />
                       {obterProximosStatus(pedido.status).length > 0 && (
+                        <>
                           <select
                             aria-label={`Próximo status do pedido ${pedido.codigo}`}
                             value={statusSelecionado[pedido.codigo] ?? ""}
-                            disabled={atualizandoStatus}
+                            disabled={salvandoCodigo === pedido.codigo}
                             onChange={(evento) => setStatusSelecionado((atual) => ({ ...atual, [pedido.codigo]: evento.target.value as StatusPedido | "" }))}
                             className="border border-[#E8E0D5] bg-white px-2 py-1 text-sm disabled:opacity-50"
                           >
                             <option value="">Atualizar status</option>
                             {obterProximosStatus(pedido.status).map((status) => (
                               <option key={status} value={status}>
-                                {status.replace("_", " ")}
+                                {rotulosStatus[status]}
                               </option>
                             ))}
                           </select>
-                      )}
-                      {atualizandoStatus && <LoadingState variante="texto" mensagem="Salvando status..." />}
+                          {salvandoCodigo === pedido.codigo && <LoadingState variante="texto" mensagem="Salvando status..." />}
                           <button
                             type="button"
                             onClick={() => void salvarStatus(pedido.codigo)}
-                            disabled={atualizandoStatus || !statusSelecionado[pedido.codigo]}
+                            disabled={salvandoCodigo === pedido.codigo || !statusSelecionado[pedido.codigo]}
                             className="btn-outline px-3 py-1 text-sm disabled:opacity-50"
                           >
                             Salvar
                           </button>
+                        </>
+                      )}
                     </div>
                     <span className="font-semibold text-[#C1522A]">{formatCurrency(pedido.total)}</span>
                   </Card>

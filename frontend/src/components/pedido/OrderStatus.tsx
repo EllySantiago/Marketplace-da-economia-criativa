@@ -9,6 +9,12 @@ const configuracaoPorStatus: Record<StatusPedido, { label: string; className: st
   cancelado: { label: "Cancelado", className: "bg-[#fee2e2] text-[#dc2626]" },
 };
 
+/** Rótulos por extenso (com acentuação) de cada status — reaproveitados fora do badge,
+ * por exemplo nas opções do <select> de atualização de status no painel do artesão. */
+export const rotulosStatus: Record<StatusPedido, string> = Object.fromEntries(
+  Object.entries(configuracaoPorStatus).map(([status, { label }]) => [status, label]),
+) as Record<StatusPedido, string>;
+
 export default function OrderStatus({ status }: { status: StatusPedido }) {
   const { label, className } = configuracaoPorStatus[status];
   return <span className={`inline-block rounded-sm px-2 py-1 text-xs font-semibold uppercase tracking-[.04em] ${className}`}>{label}</span>;

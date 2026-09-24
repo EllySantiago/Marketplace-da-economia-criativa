@@ -66,6 +66,12 @@ export const pedidosService = {
       throw new ApiError(`Não é possível alterar o pedido de ${pedido.status} para ${novoStatus}.`);
     }
 
+    // O estoque foi descontado na criação do pedido (criarPedido -> removerEstoque); ao
+    // cancelar, as peças precisam voltar a ficar disponíveis no catálogo.
+    if (novoStatus === "cancelado") {
+      await produtosService.devolverEstoque(pedido.itens.map((item) => ({ produtoId: item.produto.id, quantidade: item.quantidade })));
+    }
+
     pedido.status = novoStatus;
     return delay(pedido);
   },
